@@ -1,9 +1,8 @@
 // lib/ideas.ts
 import { IdeaProduct } from '@/types';
 
-const SUPABASE_URL = 'https://wojgjqikqlmlccfkfanj.supabase.co';
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvamdqcWlrcWxtbGNjZmtmYW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDkzNzQsImV4cCI6MjA4MTI4NTM3NH0.tD0ZCVUxmHlc5G8LX-bOTaOzaJBF8f5mbO-OEV64Suc';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const STORAGE_BUCKET = 'product-images';
 
