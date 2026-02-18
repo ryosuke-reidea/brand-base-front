@@ -63,6 +63,71 @@ function CountUpAnimation({ end, duration = 1 }: { end: number; duration?: numbe
   return <span ref={ref}>{count.toLocaleString()}</span>;
 }
 
+// ── 3D プロダクトカルーセル ──────────────────────────────────────────
+function Hero3DCarousel({ products }: { products: Product[] }) {
+  const [active, setActive] = useState(0);
+  const items = products.slice(0, 7);
+  const total = items.length;
+
+  useEffect(() => {
+    if (total === 0) return;
+    const id = setInterval(() => setActive((p) => (p + 1) % total), 3500);
+    return () => clearInterval(id);
+  }, [total]);
+
+  if (total === 0) return null;
+
+  return (
+    <div className="relative w-full max-w-5xl mx-auto h-[220px] md:h-[260px]" style={{ perspective: '1200px' }}>
+      {items.map((product, i) => {
+        const offset = ((i - active + total) % total) - Math.floor(total / 2);
+        const absOffset = Math.abs(offset);
+        const isCenter = offset === 0;
+        return (
+          <motion.div
+            key={product.slug}
+            className="absolute top-1/2 left-1/2 cursor-pointer"
+            animate={{
+              x: `calc(-50% + ${offset * 200}px)`,
+              y: '-50%',
+              z: isCenter ? 0 : -absOffset * 120,
+              scale: isCenter ? 1 : Math.max(0.6, 1 - absOffset * 0.15),
+              opacity: absOffset > 3 ? 0 : isCenter ? 1 : Math.max(0.3, 1 - absOffset * 0.25),
+              rotateY: offset * -8,
+            }}
+            transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+            style={{ transformStyle: 'preserve-3d', zIndex: total - absOffset }}
+            onClick={() => setActive(i)}
+          >
+            <div className={`w-[180px] md:w-[220px] rounded-2xl overflow-hidden border-2 shadow-2xl transition-all duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/40' : 'border-white/60 shadow-gray-200/30'}`}>
+              <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="w-10 h-10 text-purple-300" />
+                  </div>
+                )}
+                {isCenter && product.funding_percent && (
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {product.funding_percent}%達成
+                  </div>
+                )}
+              </div>
+              <div className="bg-white/95 backdrop-blur-sm p-3">
+                <p className="text-xs md:text-sm font-semibold text-gray-800 truncate">{product.product_name}</p>
+                {isCenter && (
+                  <p className="text-[10px] text-purple-600 font-medium mt-0.5">{formatJPY(product.lifetime_sales_jpy)}</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── ヒーローに浮かぶクリエイターアバター ────────────────────────────
 interface FloatingBubble {
   id: number;
@@ -365,6 +430,31 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
             </motion.div>
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* 3D プロダクトカルーセル */}
+      <section className="py-12 md:py-16 relative overflow-hidden bg-gradient-to-b from-white to-purple-50/20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">
+              注目のプロジェクト
+            </h2>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Hero3DCarousel products={featuredProducts.length >= 5 ? products.slice(0, 7) : products.slice(0, 7)} />
+          </motion.div>
+        </div>
       </section>
 
       <section className="py-20 relative">
