@@ -165,10 +165,31 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
 
         <div className="container mx-auto px-4 relative z-10">
           {/* ── 上段: コピー（左）＆ カルーセル（右）──── */}
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-12 md:mb-16">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center max-w-6xl mx-auto mb-12 md:mb-16">
 
-            {/* 左: テキスト + CTA */}
-            <div className="text-center md:text-left animate-[fadeIn_0.5s_ease]">
+            {/* 右（SPでは上）: 3Dカルーセル + クリエイターアバター */}
+            <div className="animate-[fadeIn_0.5s_ease] md:order-2">
+              <Hero3DCarousel products={products.slice(0, 7)} />
+              {creators.length > 0 && (
+                <div className="flex items-center justify-center gap-3 mt-4 md:mt-6">
+                  <div className="flex -space-x-3">
+                    {creators.slice(0, 5).map((c, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-white" style={{ zIndex: 5 - i }}>
+                        {c.image_url ? (
+                          <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <AvatarGenerator seed={c.avatar_seed} size={40} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">{totalCreators}名</span>のクリエイターが参加中</p>
+                </div>
+              )}
+            </div>
+
+            {/* 左（SPでは下）: テキスト + CTA */}
+            <div className="text-center md:text-left animate-[fadeIn_0.7s_ease] md:order-1">
               <div className="inline-block mb-5">
                 <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium">
                   在庫ゼロからスタート
@@ -209,28 +230,6 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
                   </Button>
                 </Link>
               </div>
-            </div>
-
-            {/* 右: 3Dカルーセル + クリエイターアバター */}
-            <div className="animate-[fadeIn_0.8s_ease]">
-              <Hero3DCarousel products={products.slice(0, 7)} />
-              {/* クリエイターアバター行 */}
-              {creators.length > 0 && (
-                <div className="flex items-center justify-center gap-3 mt-6">
-                  <div className="flex -space-x-3">
-                    {creators.slice(0, 5).map((c, i) => (
-                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-white" style={{ zIndex: 5 - i }}>
-                        {c.image_url ? (
-                          <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <AvatarGenerator seed={c.avatar_seed} size={40} />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">{totalCreators}名</span>のクリエイターが参加中</p>
-                </div>
-              )}
             </div>
           </div>
 
