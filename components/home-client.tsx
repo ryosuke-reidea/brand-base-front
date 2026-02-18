@@ -9,10 +9,9 @@ import { ProductCard } from '@/components/product-card';
 import { IdeaCard } from '@/components/idea-card';
 import { formatJPY } from '@/lib/utils';
 import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
-import { AvatarGenerator } from '@/components/avatar-generator';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -128,79 +127,6 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   );
 }
 
-// ── ヒーローに浮かぶクリエイターアバター（CSS animation で軽量化）───
-interface StaticBubble {
-  creatorIndex: number;
-  x: number;
-  y: number;
-  size: number;
-  delay: number;
-  floatDuration: number;
-}
-
-function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
-  const bubbles = useMemo<StaticBubble[]>(() => {
-    if (creators.length === 0) return [];
-    const ZONES = [
-      { xMin: 2, xMax: 18, yMin: 5, yMax: 90 },
-      { xMin: 82, xMax: 98, yMin: 5, yMax: 90 },
-      { xMin: 20, xMax: 32, yMin: 5, yMax: 25 },
-      { xMin: 20, xMax: 32, yMin: 72, yMax: 92 },
-      { xMin: 68, xMax: 80, yMin: 5, yMax: 25 },
-      { xMin: 68, xMax: 80, yMin: 72, yMax: 92 },
-      { xMin: 35, xMax: 65, yMin: 2, yMax: 12 },
-      { xMin: 35, xMax: 65, yMin: 85, yMax: 96 },
-    ];
-    const SIZES = [40, 48, 52, 56];
-    return ZONES.map((z, i) => ({
-      creatorIndex: i % creators.length,
-      x: z.xMin + Math.random() * (z.xMax - z.xMin),
-      y: z.yMin + Math.random() * (z.yMax - z.yMin),
-      size: SIZES[i % SIZES.length],
-      delay: i * 0.7,
-      floatDuration: 3 + (i % 3),
-    }));
-  }, [creators]);
-
-  if (creators.length === 0) return null;
-
-  return (
-    <div className="absolute inset-0 pointer-events-none z-[1]" aria-hidden>
-      {bubbles.map((b, i) => {
-        const creator = creators[b.creatorIndex];
-        return (
-          <div
-            key={i}
-            className="absolute -translate-x-1/2 -translate-y-1/2 animate-[fadeFloat_7s_ease-in-out_infinite]"
-            style={{
-              left: `${b.x}%`,
-              top: `${b.y}%`,
-              animationDelay: `${b.delay}s`,
-              animationDuration: `${b.floatDuration + 4}s`,
-            }}
-          >
-            <div className="flex flex-col items-center">
-              <div
-                className="rounded-full border-2 border-white/80 shadow-lg shadow-purple-200/20 overflow-hidden bg-white"
-                style={{ width: b.size, height: b.size }}
-              >
-                {creator.image_url ? (
-                  <img src={creator.image_url} alt={creator.display_name} className="w-full h-full object-cover" />
-                ) : (
-                  <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
-                )}
-              </div>
-              <span className="mt-1 text-[9px] font-medium text-purple-600/70 bg-white/80 rounded-full px-2 py-0.5 whitespace-nowrap">
-                {creator.display_name}
-              </span>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ──────────────────────────────────────────────────────────────────────
 
 interface HomeClientProps {
@@ -232,9 +158,6 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
     <div className="bg-gradient-to-b from-white via-purple-50/10 to-white">
       <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center justify-center py-20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-50/40 via-transparent to-transparent" />
-
-        {/* クリエイターアバター（CSS animation のみ） */}
-        <FloatingCreatorBubbles creators={creators} />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
