@@ -171,7 +171,7 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
             <div className="animate-[fadeIn_0.5s_ease] md:order-2">
               <Hero3DCarousel products={products.slice(0, 7)} />
               {creators.length > 0 && (
-                <div className="flex items-center justify-center gap-3 mt-4 md:mt-6">
+                <div className="hidden md:flex items-center justify-center gap-3 mt-6">
                   <div className="flex -space-x-3">
                     {creators.slice(0, 5).map((c, i) => (
                       <div key={i} className="w-10 h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-white" style={{ zIndex: 5 - i }}>
