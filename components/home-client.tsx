@@ -143,7 +143,9 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
 
   const heroRef = useRef(null);
 
-  const totalSales = creators.reduce((sum, c) => sum + c.lifetime_sales_jpy, 0);
+  const creatorSales = creators.reduce((sum, c) => sum + c.lifetime_sales_jpy, 0);
+  const productSales = products.reduce((sum, p) => sum + p.lifetime_sales_jpy, 0);
+  const totalSales = Math.max(creatorSales, productSales);
   const totalProducts = products.length;
   const totalCreators = creators.length;
   const avgFundingPercent = Math.round(
