@@ -78,7 +78,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   if (total === 0) return null;
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto h-[220px] md:h-[260px]" style={{ perspective: '1200px' }}>
+    <div className="relative w-full max-w-4xl mx-auto h-[180px] md:h-[210px]" style={{ perspective: '1200px' }}>
       {items.map((product, i) => {
         const offset = ((i - active + total) % total) - Math.floor(total / 2);
         const absOffset = Math.abs(offset);
@@ -88,9 +88,9 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
             key={product.slug}
             className="absolute top-1/2 left-1/2 cursor-pointer"
             animate={{
-              x: `calc(-50% + ${offset * 200}px)`,
+              x: `calc(-50% + ${offset * 170}px)`,
               y: '-50%',
-              z: isCenter ? 0 : -absOffset * 120,
+              z: isCenter ? 0 : -absOffset * 100,
               scale: isCenter ? 1 : Math.max(0.6, 1 - absOffset * 0.15),
               opacity: absOffset > 3 ? 0 : isCenter ? 1 : Math.max(0.3, 1 - absOffset * 0.25),
               rotateY: offset * -8,
@@ -99,25 +99,25 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
             style={{ transformStyle: 'preserve-3d', zIndex: total - absOffset }}
             onClick={() => setActive(i)}
           >
-            <div className={`w-[180px] md:w-[220px] rounded-2xl overflow-hidden border-2 shadow-2xl transition-all duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/40' : 'border-white/60 shadow-gray-200/30'}`}>
+            <div className={`w-[150px] md:w-[190px] rounded-2xl overflow-hidden border-2 shadow-2xl transition-all duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/40' : 'border-white/60 shadow-gray-200/30'}`}>
               <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-10 h-10 text-purple-300" />
+                    <Package className="w-8 h-8 text-purple-300" />
                   </div>
                 )}
                 {isCenter && product.funding_percent && (
-                  <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <div className="absolute top-1.5 right-1.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
                     {product.funding_percent}%達成
                   </div>
                 )}
               </div>
-              <div className="bg-white/95 backdrop-blur-sm p-3">
-                <p className="text-xs md:text-sm font-semibold text-gray-800 truncate">{product.product_name}</p>
+              <div className="bg-white/95 backdrop-blur-sm p-2.5">
+                <p className="text-[11px] md:text-xs font-semibold text-gray-800 truncate">{product.product_name}</p>
                 {isCenter && (
-                  <p className="text-[10px] text-purple-600 font-medium mt-0.5">{formatJPY(product.lifetime_sales_jpy)}</p>
+                  <p className="text-[9px] text-purple-600 font-medium mt-0.5">{formatJPY(product.lifetime_sales_jpy)}</p>
                 )}
               </div>
             </div>
@@ -174,9 +174,9 @@ function randomInZone() {
   };
 }
 
-const SIZES = [56, 64, 72, 80, 88, 96, 104];
-const MAX_BUBBLES = 18;
-const INITIAL_COUNT = 12;
+const SIZES = [40, 48, 56, 64, 72];
+const MAX_BUBBLES = 10;
+const INITIAL_COUNT = 6;
 
 function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
   const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
@@ -324,17 +324,17 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
             animate="animate"
           >
             <motion.div
-              className="inline-block mb-8"
+              className="inline-block mb-4"
               variants={fadeInUp}
               transition={{ duration: 0.2 }}
             >
-              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-6 py-2 text-sm font-medium shadow-sm shadow-purple-200/50">
+              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium shadow-sm shadow-purple-200/50">
                 在庫ゼロからスタート
               </Badge>
             </motion.div>
 
             <motion.h1
-              className="text-6xl md:text-8xl font-bold mb-8 leading-[1.1] tracking-tight"
+              className="text-5xl md:text-7xl font-bold mb-4 leading-[1.1] tracking-tight"
               variants={fadeInUp}
               transition={{ duration: 0.25, delay: 0.03 }}
             >
@@ -348,67 +348,77 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
             </motion.h1>
 
             <motion.div
-              className="text-lg md:text-xl text-gray-600 mb-16 leading-relaxed max-w-2xl mx-auto"
+              className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto"
               variants={fadeInUp}
               transition={{ duration: 0.25, delay: 0.06 }}
             >
-              <p className="text-gray-900 font-semibold mb-3 text-xl md:text-2xl">審査を通過すれば、0円で収益化可能。</p>
-              <p className="text-gray-600">クラファンに必要な全ての費用を当社が負担します。</p>
+              <p className="text-gray-900 font-semibold mb-1.5 text-lg md:text-xl">審査を通過すれば、0円で収益化可能。</p>
+              <p className="text-gray-600 text-sm md:text-base">クラファンに必要な全ての費用を当社が負担します。</p>
             </motion.div>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-5 justify-center mb-20"
+              className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
               variants={fadeInUp}
               transition={{ duration: 0.25, delay: 0.09 }}
             >
               <Link href="/apply">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-base px-12 py-7 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
+                  className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm px-10 py-6 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
                 >
                   アイデアを応募する
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/apply#call">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-purple-200 text-purple-900 hover:bg-purple-50 hover:border-purple-300 text-base px-12 py-7 transition-all duration-300 rounded-xl font-semibold backdrop-blur-sm"
+                  className="border-2 border-purple-200 text-purple-900 hover:bg-purple-50 hover:border-purple-300 text-sm px-10 py-6 transition-all duration-300 rounded-xl font-semibold backdrop-blur-sm"
                 >
                   無料相談を申し込む
                 </Button>
               </Link>
             </motion.div>
 
-            {/* 実績カウンター */}
+            {/* 3Dプロダクトカルーセル */}
             <motion.div
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto mb-16"
               variants={fadeInUp}
-              transition={{ duration: 0.3, delay: 0.12 }}
+              transition={{ duration: 0.4, delay: 0.12 }}
+              className="mb-6"
+            >
+              <Hero3DCarousel products={products.slice(0, 7)} />
+            </motion.div>
+
+            {/* 実績カウンター (コンパクト) */}
+            <motion.div
+              className="flex flex-wrap justify-center gap-3 md:gap-5 max-w-3xl mx-auto mb-6"
+              variants={fadeInUp}
+              transition={{ duration: 0.3, delay: 0.16 }}
             >
               {[
                 { label: '累計売上', value: Math.round(totalSales / 10000), suffix: '万円', icon: TrendingUp, color: 'from-purple-500 to-pink-500' },
-                { label: 'クリエイター数', value: totalCreators, suffix: '名', icon: Users, color: 'from-pink-500 to-rose-500' },
-                { label: 'プロジェクト数', value: totalProducts, suffix: '件', icon: Package, color: 'from-violet-500 to-purple-500' },
+                { label: 'クリエイター', value: totalCreators, suffix: '名', icon: Users, color: 'from-pink-500 to-rose-500' },
+                { label: 'プロジェクト', value: totalProducts, suffix: '件', icon: Package, color: 'from-violet-500 to-purple-500' },
                 { label: '平均達成率', value: avgFundingPercent, suffix: '%', icon: Target, color: 'from-fuchsia-500 to-pink-500' },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
-                  className="relative group"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
+                  transition={{ duration: 0.35, delay: 0.18 + i * 0.06 }}
                 >
-                  <div className="bg-white/80 backdrop-blur-md rounded-2xl p-5 md:p-6 border border-purple-100/50 shadow-lg shadow-purple-100/20 hover:shadow-xl hover:shadow-purple-200/30 transition-all duration-300 hover:-translate-y-1">
-                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} mb-3 shadow-md`}>
-                      <stat.icon className="w-5 h-5 text-white" />
+                  <div className="bg-white/70 backdrop-blur-md rounded-xl px-4 py-2.5 border border-purple-100/40 shadow-md shadow-purple-100/15 flex items-center gap-2.5">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} shadow-sm`}>
+                      <stat.icon className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent">
-                      <CountUpAnimation end={stat.value} duration={2} />
-                      <span className="text-lg md:text-xl ml-0.5">{stat.suffix}</span>
+                    <div>
+                      <div className="text-lg md:text-xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent leading-tight">
+                        <CountUpAnimation end={stat.value} duration={2} />
+                        <span className="text-sm ml-0.5">{stat.suffix}</span>
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-medium leading-tight">{stat.label}</div>
                     </div>
-                    <div className="text-xs md:text-sm text-gray-500 mt-1 font-medium">{stat.label}</div>
                   </div>
                 </motion.div>
               ))}
@@ -417,44 +427,19 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
             <motion.div
               className="flex justify-center"
               variants={fadeInUp}
-              transition={{ duration: 0.25, delay: 0.18 }}
+              transition={{ duration: 0.25, delay: 0.22 }}
             >
               <motion.div
-                animate={{ y: [0, 8, 0] }}
+                animate={{ y: [0, 6, 0] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                 className="flex flex-col items-center text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
               >
-                <span className="text-xs tracking-wider uppercase mb-3">スクロールして詳しく見る</span>
-                <ChevronDown className="w-5 h-5" />
+                <span className="text-[10px] tracking-wider uppercase mb-2">スクロールして詳しく見る</span>
+                <ChevronDown className="w-4 h-4" />
               </motion.div>
             </motion.div>
           </motion.div>
         </motion.div>
-      </section>
-
-      {/* 3D プロダクトカルーセル */}
-      <section className="py-12 md:py-16 relative overflow-hidden bg-gradient-to-b from-white to-purple-50/20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-8"
-          >
-            <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">
-              注目のプロジェクト
-            </h2>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Hero3DCarousel products={featuredProducts.length >= 5 ? products.slice(0, 7) : products.slice(0, 7)} />
-          </motion.div>
-        </div>
       </section>
 
       <section className="py-20 relative">
