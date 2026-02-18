@@ -70,37 +70,48 @@ interface FloatingBubble {
   x: number;
   y: number;
   size: number;
-  floatY: number;    // 上下揺れの振幅
-  floatDuration: number; // 揺れの周期
+  floatY: number;
+  floatDuration: number;
 }
 
-// 画面全体に散りばめるゾーン（中央テキスト周辺は避ける）
+// 画面全体を密にカバー（中央テキスト部分は避ける）
 const BUBBLE_ZONES = [
-  // 左帯
-  { xMin: 1, xMax: 18, yMin: 5, yMax: 92 },
-  // 右帯
-  { xMin: 82, xMax: 99, yMin: 5, yMax: 92 },
-  // 左中
-  { xMin: 18, xMax: 32, yMin: 5, yMax: 30 },
-  { xMin: 18, xMax: 32, yMin: 72, yMax: 95 },
-  // 右中
-  { xMin: 68, xMax: 82, yMin: 5, yMax: 30 },
-  { xMin: 68, xMax: 82, yMin: 72, yMax: 95 },
-  // 上部ワイド
-  { xMin: 25, xMax: 75, yMin: 2, yMax: 15 },
-  // 下部ワイド
-  { xMin: 25, xMax: 75, yMin: 82, yMax: 98 },
+  // 左帯 広め
+  { xMin: 1, xMax: 20, yMin: 3, yMax: 95, w: 3 },
+  // 右帯 広め
+  { xMin: 80, xMax: 99, yMin: 3, yMax: 95, w: 3 },
+  // 左中上
+  { xMin: 20, xMax: 35, yMin: 3, yMax: 28, w: 2 },
+  // 左中下
+  { xMin: 20, xMax: 35, yMin: 70, yMax: 97, w: 2 },
+  // 右中上
+  { xMin: 65, xMax: 80, yMin: 3, yMax: 28, w: 2 },
+  // 右中下
+  { xMin: 65, xMax: 80, yMin: 70, yMax: 97, w: 2 },
+  // 上部中央ワイド
+  { xMin: 30, xMax: 70, yMin: 1, yMax: 14, w: 2 },
+  // 下部中央ワイド
+  { xMin: 30, xMax: 70, yMin: 80, yMax: 99, w: 2 },
 ];
 
 function randomInZone() {
-  const zone = BUBBLE_ZONES[Math.floor(Math.random() * BUBBLE_ZONES.length)];
+  // 重み付きランダム選択
+  const totalWeight = BUBBLE_ZONES.reduce((s, z) => s + (z.w || 1), 0);
+  let r = Math.random() * totalWeight;
+  let zone = BUBBLE_ZONES[0];
+  for (const z of BUBBLE_ZONES) {
+    r -= z.w || 1;
+    if (r <= 0) { zone = z; break; }
+  }
   return {
     x: zone.xMin + Math.random() * (zone.xMax - zone.xMin),
     y: zone.yMin + Math.random() * (zone.yMax - zone.yMin),
   };
 }
 
-const SIZES = [36, 44, 52, 56, 64, 72, 80];
+const SIZES = [56, 64, 72, 80, 88, 96, 104];
+const MAX_BUBBLES = 18;
+const INITIAL_COUNT = 12;
 
 function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
   const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
@@ -115,21 +126,19 @@ function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
       x: pos.x,
       y: pos.y,
       size: SIZES[Math.floor(Math.random() * SIZES.length)],
-      floatY: 6 + Math.random() * 10,
+      floatY: 5 + Math.random() * 8,
       floatDuration: 2.5 + Math.random() * 2,
     };
-    setBubbles((prev) => [...prev.slice(-11), bubble]); // 最大12個
+    setBubbles((prev) => [...prev.slice(-(MAX_BUBBLES - 1)), bubble]);
   }, [creators]);
 
   useEffect(() => {
     if (creators.length === 0) return;
-    // 初期表示: すぐに8個ばらまく
     const timers: NodeJS.Timeout[] = [];
-    for (let i = 0; i < 8; i++) {
-      timers.push(setTimeout(() => spawnBubble(), i * 200));
+    for (let i = 0; i < INITIAL_COUNT; i++) {
+      timers.push(setTimeout(() => spawnBubble(), i * 150));
     }
-    // 以降は短い間隔で追加
-    const interval = setInterval(spawnBubble, 1400);
+    const interval = setInterval(spawnBubble, 1000);
     return () => {
       timers.forEach(clearTimeout);
       clearInterval(interval);
@@ -144,15 +153,15 @@ function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
           return (
             <motion.div
               key={b.id}
-              initial={{ opacity: 0, scale: 0, y: 20 }}
+              initial={{ opacity: 0, scale: 0, y: 30 }}
               animate={{
-                opacity: [0, 0.85, 0.85, 0],
-                scale: [0.3, 1, 1, 0.6],
-                y: [20, 0, 0, -10],
+                opacity: [0, 0.9, 0.9, 0],
+                scale: [0.2, 1, 1, 0.5],
+                y: [30, 0, 0, -15],
               }}
               transition={{
-                duration: 5,
-                times: [0, 0.12, 0.8, 1],
+                duration: 6,
+                times: [0, 0.1, 0.82, 1],
                 ease: 'easeInOut',
               }}
               onAnimationComplete={() => {
@@ -161,7 +170,6 @@ function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
               className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: `${b.x}%`, top: `${b.y}%` }}
             >
-              {/* ゆっくり上下にフロート */}
               <motion.div
                 animate={{ y: [-b.floatY / 2, b.floatY / 2] }}
                 transition={{
@@ -171,22 +179,23 @@ function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
                   ease: 'easeInOut',
                 }}
               >
-                <div
-                  className="rounded-full border-[3px] border-white/90 shadow-xl shadow-purple-300/30 overflow-hidden bg-white ring-2 ring-purple-100/40"
-                  style={{ width: b.size, height: b.size }}
-                >
-                  {creator.image_url ? (
-                    <img
-                      src={creator.image_url}
-                      alt={creator.display_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
-                  )}
-                </div>
-                <div className="mt-1.5 text-center">
-                  <span className="text-[10px] font-semibold text-purple-700/80 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-0.5 shadow-md shadow-purple-200/30 whitespace-nowrap border border-purple-100/50">
+                {/* 画像が上・名前が下の縦レイアウト */}
+                <div className="flex flex-col items-center">
+                  <div
+                    className="rounded-full border-[3px] border-white/90 shadow-xl shadow-purple-300/30 overflow-hidden bg-white ring-2 ring-purple-100/40"
+                    style={{ width: b.size, height: b.size }}
+                  >
+                    {creator.image_url ? (
+                      <img
+                        src={creator.image_url}
+                        alt={creator.display_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
+                    )}
+                  </div>
+                  <span className="mt-1.5 text-[10px] font-semibold text-purple-700/80 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-0.5 shadow-md shadow-purple-200/30 whitespace-nowrap border border-purple-100/50">
                     {creator.display_name}
                   </span>
                 </div>
