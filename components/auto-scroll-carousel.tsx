@@ -65,17 +65,26 @@ function ScrollTrack({ children, speed = 0.5 }: {
   const onEnter = useCallback(() => { hovering.current = true; }, []);
   const onLeave = useCallback(() => { hovering.current = false; }, []);
 
-  // ホイール → offset操作
+  // ホイール・トラックパッド → offset操作
   useEffect(() => {
     const container = trackRef.current?.parentElement;
     if (!container) return;
 
     const onWheel = (e: WheelEvent) => {
       if (!hovering.current) return;
-      e.preventDefault();
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      offset.current += delta;
-      applyTransform();
+
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+
+      // 横スワイプ: deltaXが支配的 → 横スクロールに使う
+      if (absX > absY && absX > 2) {
+        e.preventDefault();
+        offset.current += e.deltaX;
+        applyTransform();
+        return;
+      }
+
+      // 縦スクロール: deltaYが支配的 → ページの縦スクロールに任せる（何もしない）
     };
 
     container.addEventListener('wheel', onWheel, { passive: false });
@@ -117,6 +126,45 @@ function ScrollTrack({ children, speed = 0.5 }: {
       container.removeEventListener('mousedown', onDown);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
+    };
+  }, [applyTransform]);
+
+  // タッチ横スワイプ
+  useEffect(() => {
+    const container = trackRef.current?.parentElement;
+    if (!container) return;
+
+    let touchStartX = 0;
+    let touchStartOffset = 0;
+    let isSwiping = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartOffset = offset.current;
+      isSwiping = false;
+      hovering.current = true;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = e.touches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 10) {
+        isSwiping = true;
+        e.preventDefault();
+        offset.current = touchStartOffset - dx;
+        applyTransform();
+      }
+    };
+    const onTouchEnd = () => {
+      hovering.current = false;
+      isSwiping = false;
+    };
+
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd);
+    return () => {
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onTouchEnd);
     };
   }, [applyTransform]);
 
