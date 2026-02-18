@@ -1,123 +1,135 @@
 'use client';
-import { useRef, useEffect, useState, useCallback, ReactNode } from 'react';
+import { useRef, useEffect, useCallback, ReactNode } from 'react';
 import { Creator, Product } from '@/types';
 import { CreatorCard } from './creator-card';
 import { ProductCard } from './product-card';
 
-// ── 自動スクロール（CSS marquee）＋ホバー時横スクロール操作 ─────────
-function ScrollTrack({ children, duration = 40 }: {
+// ── 自動スクロール + ホバー時手動操作（単一DOM・transformベース） ────
+function ScrollTrack({ children, speed = 0.5 }: {
   children: ReactNode;
-  duration?: number;
+  speed?: number;
 }) {
-  const [hovering, setHovering] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const marqueeRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offset = useRef(0);       // 現在のtranslateX (px, 正の値=左方向)
+  const hovering = useRef(false);
+  const raf = useRef(0);
+  const halfWidth = useRef(0);
 
-  const onEnter = useCallback(() => {
-    // marqueeの現在位置を取得してscrollLeftに引き継ぐ
-    if (marqueeRef.current && scrollRef.current) {
-      const style = window.getComputedStyle(marqueeRef.current);
-      const matrix = new DOMMatrix(style.transform);
-      const currentX = Math.abs(matrix.m41);
-      scrollRef.current.scrollLeft = currentX;
-      offsetRef.current = currentX;
+  // halfWidth を計測
+  const measureHalf = useCallback(() => {
+    if (trackRef.current) {
+      halfWidth.current = trackRef.current.scrollWidth / 2;
     }
-    setHovering(true);
   }, []);
 
-  const onLeave = useCallback(() => {
-    setHovering(false);
+  // transform を適用
+  const applyTransform = useCallback(() => {
+    if (!trackRef.current) return;
+    // ループ: halfWidthを超えたら巻き戻す
+    const hw = halfWidth.current;
+    if (hw > 0) {
+      offset.current = ((offset.current % hw) + hw) % hw;
+    }
+    trackRef.current.style.transform = `translateX(-${offset.current}px)`;
   }, []);
 
-  // ホバー中: ホイール→横スクロール
+  // 自動スクロール
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
+    measureHalf();
+    let running = true;
+
+    const tick = () => {
+      if (!running) return;
+      if (!hovering.current) {
+        offset.current += speed;
+        applyTransform();
+      }
+      raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf.current);
+    };
+  }, [speed, measureHalf, applyTransform]);
+
+  // リサイズ時に再計測
+  useEffect(() => {
+    const onResize = () => measureHalf();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [measureHalf]);
+
+  // ホバー検知
+  const onEnter = useCallback(() => { hovering.current = true; }, []);
+  const onLeave = useCallback(() => { hovering.current = false; }, []);
+
+  // ホイール → offset操作
+  useEffect(() => {
+    const container = trackRef.current?.parentElement;
+    if (!container) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (!hovering) return;
+      if (!hovering.current) return;
       e.preventDefault();
       const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      el.scrollLeft += delta;
+      offset.current += delta;
+      applyTransform();
     };
 
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [hovering]);
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => container.removeEventListener('wheel', onWheel);
+  }, [applyTransform]);
 
-  // ホバー中: ドラッグ
+  // ドラッグ → offset操作
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
+    const container = trackRef.current?.parentElement;
+    if (!container) return;
 
     let dragging = false;
     let startX = 0;
-    let startScroll = 0;
+    let startOffset = 0;
 
     const onDown = (e: MouseEvent) => {
-      if (!hovering) return;
+      if (!hovering.current) return;
       dragging = true;
       startX = e.pageX;
-      startScroll = el.scrollLeft;
-      el.style.cursor = 'grabbing';
+      startOffset = offset.current;
+      container.style.cursor = 'grabbing';
     };
     const onMove = (e: MouseEvent) => {
       if (!dragging) return;
       e.preventDefault();
-      el.scrollLeft = startScroll - (e.pageX - startX) * 1.5;
+      offset.current = startOffset - (e.pageX - startX);
+      applyTransform();
     };
     const onUp = () => {
       if (!dragging) return;
       dragging = false;
-      el.style.cursor = '';
+      container.style.cursor = '';
     };
 
-    el.addEventListener('mousedown', onDown);
+    container.addEventListener('mousedown', onDown);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     return () => {
-      el.removeEventListener('mousedown', onDown);
+      container.removeEventListener('mousedown', onDown);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
-  }, [hovering]);
+  }, [applyTransform]);
 
   return (
     <div
-      ref={scrollRef}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
-      className="overflow-hidden select-none"
-      style={{ cursor: hovering ? 'grab' : 'default' }}
+      className="overflow-hidden select-none cursor-grab"
     >
-      {/* 自動スクロール: CSS marquee（ホバー外） */}
-      {!hovering && (
-        <div
-          ref={marqueeRef}
-          className="marquee-track flex w-max gap-6"
-          style={{ animation: `marquee ${duration}s linear infinite` }}
-        >
-          {children}
-          {children}
-        </div>
-      )}
-
-      {/* 手動スクロール: overflow-x-scroll（ホバー中） */}
-      {hovering && (
-        <div
-          className="flex gap-6 overflow-x-auto scrollbar-hide"
-          style={{ scrollBehavior: 'auto' }}
-          ref={(el) => {
-            if (el && offsetRef.current) {
-              el.scrollLeft = offsetRef.current;
-            }
-          }}
-        >
-          {children}
-          {children}
-        </div>
-      )}
+      <div ref={trackRef} className="flex w-max gap-6 will-change-transform">
+        {children}
+        {children}
+      </div>
     </div>
   );
 }
@@ -126,7 +138,7 @@ function ScrollTrack({ children, duration = 40 }: {
 export function AutoScrollCarousel({ creators }: { creators: Creator[] }) {
   if (creators.length === 0) return null;
   return (
-    <ScrollTrack duration={creators.length * 4}>
+    <ScrollTrack speed={0.5}>
       {creators.map((creator) => (
         <div key={creator.slug} className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px]">
           <CreatorCard creator={creator} />
@@ -140,7 +152,7 @@ export function AutoScrollCarousel({ creators }: { creators: Creator[] }) {
 export function ProductScrollCarousel({ products }: { products: Product[] }) {
   if (products.length === 0) return null;
   return (
-    <ScrollTrack duration={products.length * 4}>
+    <ScrollTrack speed={0.5}>
       {products.map((product) => (
         <div key={product.slug} className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px]">
           <ProductCard product={product} />
