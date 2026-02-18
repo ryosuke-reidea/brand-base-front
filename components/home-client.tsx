@@ -9,9 +9,10 @@ import { ProductCard } from '@/components/product-card';
 import { IdeaCard } from '@/components/idea-card';
 import { formatJPY } from '@/lib/utils';
 import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
-import { motion, useInView } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
+import { AvatarGenerator } from '@/components/avatar-generator';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -62,6 +63,121 @@ function CountUpAnimation({ end, duration = 1 }: { end: number; duration?: numbe
   return <span ref={ref}>{count.toLocaleString()}</span>;
 }
 
+// ── ヒーローに浮かぶクリエイターアバター ────────────────────────────
+interface FloatingBubble {
+  id: number;
+  creatorIndex: number;
+  x: number;   // % (5–95)
+  y: number;   // % (5–95)
+  size: number; // px
+}
+
+// 中央テキストと重ならないように配置する位置候補
+const BUBBLE_ZONES = [
+  // 左側
+  { xMin: 3, xMax: 22, yMin: 8, yMax: 88 },
+  // 右側
+  { xMin: 78, xMax: 97, yMin: 8, yMax: 88 },
+  // 上部中央
+  { xMin: 22, xMax: 78, yMin: 3, yMax: 18 },
+  // 下部中央
+  { xMin: 22, xMax: 78, yMin: 78, yMax: 95 },
+];
+
+function randomInZone() {
+  const zone = BUBBLE_ZONES[Math.floor(Math.random() * BUBBLE_ZONES.length)];
+  return {
+    x: zone.xMin + Math.random() * (zone.xMax - zone.xMin),
+    y: zone.yMin + Math.random() * (zone.yMax - zone.yMin),
+  };
+}
+
+function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
+  const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
+  const counterRef = useRef(0);
+
+  const spawnBubble = useCallback(() => {
+    if (creators.length === 0) return;
+    const pos = randomInZone();
+    const bubble: FloatingBubble = {
+      id: counterRef.current++,
+      creatorIndex: Math.floor(Math.random() * creators.length),
+      x: pos.x,
+      y: pos.y,
+      size: 48 + Math.random() * 24, // 48–72px
+    };
+    setBubbles((prev) => [...prev.slice(-5), bubble]); // 最大6個
+  }, [creators]);
+
+  useEffect(() => {
+    if (creators.length === 0) return;
+    // 初期表示: 少しずらして3つ表示
+    const t0 = setTimeout(() => spawnBubble(), 300);
+    const t1 = setTimeout(() => spawnBubble(), 900);
+    const t2 = setTimeout(() => spawnBubble(), 1500);
+    // 以降は一定間隔で追加
+    const interval = setInterval(spawnBubble, 2200);
+    return () => {
+      clearTimeout(t0);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearInterval(interval);
+    };
+  }, [spawnBubble, creators.length]);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-[1]" aria-hidden>
+      <AnimatePresence>
+        {bubbles.map((b) => {
+          const creator = creators[b.creatorIndex];
+          return (
+            <motion.div
+              key={b.id}
+              initial={{ opacity: 0, scale: 0.3 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{
+                duration: 0.6,
+                ease: 'easeOut',
+              }}
+              // 3.5秒後に自動で退場
+              onAnimationComplete={() => {
+                setTimeout(() => {
+                  setBubbles((prev) => prev.filter((p) => p.id !== b.id));
+                }, 3500);
+              }}
+              className="absolute"
+              style={{ left: `${b.x}%`, top: `${b.y}%` }}
+            >
+              <div
+                className="rounded-full border-2 border-white shadow-lg shadow-purple-200/40 overflow-hidden bg-white"
+                style={{ width: b.size, height: b.size }}
+              >
+                {creator.image_url ? (
+                  <img
+                    src={creator.image_url}
+                    alt={creator.display_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
+                )}
+              </div>
+              <div className="mt-1 text-center">
+                <span className="text-[10px] font-medium text-gray-500 bg-white/80 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm whitespace-nowrap">
+                  {creator.display_name}
+                </span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────
+
 interface HomeClientProps {
   creators: Creator[];
   products: Product[];
@@ -71,7 +187,7 @@ interface HomeClientProps {
 
 export function HomeClient({ creators, products, rankings, ideas }: HomeClientProps) {
   const [activeTab, setActiveTab] = useState<'personal' | 'single' | 'product'>('personal');
-  
+
   const heroRef = useRef(null);
 
   const totalSales = creators.reduce((sum, c) => sum + c.lifetime_sales_jpy, 0);
@@ -85,7 +201,7 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
   const featuredProducts = products.slice(0, 4);
   const featuredIdeas = ideas.slice(0, 4);
 
-  
+
 
   return (
     <div className="bg-gradient-to-b from-white via-purple-50/10 to-white">
@@ -98,7 +214,10 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
         }} />
 
         <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-purple-200/30 to-pink-200/20 rounded-full blur-3xl" />
-<div className="absolute bottom-1/4 left-1/4 w-[700px] h-[700px] bg-gradient-to-tr from-violet-200/25 to-purple-200/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-[700px] h-[700px] bg-gradient-to-tr from-violet-200/25 to-purple-200/20 rounded-full blur-3xl" />
+
+        {/* クリエイターアバターのポップアップ */}
+        <FloatingCreatorBubbles creators={creators} />
 
         <motion.div className="container mx-auto px-4 relative z-10">
           <motion.div
