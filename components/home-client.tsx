@@ -12,6 +12,7 @@ import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb,
 import { motion, useInView } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
+import { AvatarGenerator } from '@/components/avatar-generator';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -158,6 +159,52 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
     <div className="bg-gradient-to-b from-white via-purple-50/10 to-white">
       <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center justify-center py-20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-50/40 via-transparent to-transparent" />
+
+        {/* 左上・右上 クリエイターアバター（静的装飾） */}
+        {creators.length > 0 && (
+          <div className="absolute inset-0 pointer-events-none z-[1] hidden md:block" aria-hidden>
+            {/* 左上 */}
+            {creators.slice(0, 3).map((c, i) => {
+              const positions = [
+                { top: '8%', left: '5%', size: 56 },
+                { top: '18%', left: '12%', size: 48 },
+                { top: '6%', left: '16%', size: 40 },
+              ];
+              const p = positions[i];
+              return (
+                <div key={`left-${i}`} className="absolute opacity-60" style={{ top: p.top, left: p.left }}>
+                  <div className="rounded-full border-2 border-white shadow-lg overflow-hidden bg-white" style={{ width: p.size, height: p.size }}>
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <AvatarGenerator seed={c.avatar_seed} size={p.size} />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {/* 右上 */}
+            {creators.slice(3, 6).map((c, i) => {
+              const positions = [
+                { top: '8%', right: '5%', size: 56 },
+                { top: '18%', right: '12%', size: 48 },
+                { top: '6%', right: '16%', size: 40 },
+              ];
+              const p = positions[i];
+              return (
+                <div key={`right-${i}`} className="absolute opacity-60" style={{ top: p.top, right: p.right }}>
+                  <div className="rounded-full border-2 border-white shadow-lg overflow-hidden bg-white" style={{ width: p.size, height: p.size }}>
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <AvatarGenerator seed={c.avatar_seed} size={p.size} />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
