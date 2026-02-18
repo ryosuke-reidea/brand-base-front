@@ -10,7 +10,7 @@ import { IdeaCard } from '@/components/idea-card';
 import { formatJPY } from '@/lib/utils';
 import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
 import { AvatarGenerator } from '@/components/avatar-generator';
 
@@ -78,7 +78,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   if (total === 0) return null;
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto h-[180px] md:h-[210px]" style={{ perspective: '1200px' }}>
+    <div className="relative w-full max-w-5xl mx-auto h-[200px] md:h-[260px]" style={{ perspective: '1200px' }}>
       {items.map((product, i) => {
         const offset = ((i - active + total) % total) - Math.floor(total / 2);
         const absOffset = Math.abs(offset);
@@ -86,38 +86,38 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
         return (
           <motion.div
             key={product.slug}
-            className="absolute top-1/2 left-1/2 cursor-pointer"
+            className="absolute top-1/2 left-1/2 cursor-pointer will-change-transform"
             animate={{
-              x: `calc(-50% + ${offset * 170}px)`,
+              x: `calc(-50% + ${offset * 190}px)`,
               y: '-50%',
               z: isCenter ? 0 : -absOffset * 100,
-              scale: isCenter ? 1 : Math.max(0.6, 1 - absOffset * 0.15),
-              opacity: absOffset > 3 ? 0 : isCenter ? 1 : Math.max(0.3, 1 - absOffset * 0.25),
-              rotateY: offset * -8,
+              scale: isCenter ? 1 : Math.max(0.55, 1 - absOffset * 0.18),
+              opacity: absOffset > 3 ? 0 : isCenter ? 1 : Math.max(0.25, 1 - absOffset * 0.28),
+              rotateY: offset * -6,
             }}
-            transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             style={{ transformStyle: 'preserve-3d', zIndex: total - absOffset }}
             onClick={() => setActive(i)}
           >
-            <div className={`w-[150px] md:w-[190px] rounded-2xl overflow-hidden border-2 shadow-2xl transition-all duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/40' : 'border-white/60 shadow-gray-200/30'}`}>
+            <div className={`w-[170px] md:w-[230px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/30' : 'border-white/60 shadow-gray-200/20'}`}>
               <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
                 {product.image_url ? (
-                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
+                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" loading="lazy" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-8 h-8 text-purple-300" />
+                    <Package className="w-9 h-9 text-purple-300" />
                   </div>
                 )}
                 {isCenter && product.funding_percent && (
-                  <div className="absolute top-1.5 right-1.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                     {product.funding_percent}%達成
                   </div>
                 )}
               </div>
-              <div className="bg-white/95 backdrop-blur-sm p-2.5">
-                <p className="text-[11px] md:text-xs font-semibold text-gray-800 truncate">{product.product_name}</p>
+              <div className="bg-white/95 p-3">
+                <p className="text-xs md:text-sm font-semibold text-gray-800 truncate">{product.product_name}</p>
                 {isCenter && (
-                  <p className="text-[9px] text-purple-600 font-medium mt-0.5">{formatJPY(product.lifetime_sales_jpy)}</p>
+                  <p className="text-[10px] text-purple-600 font-medium mt-0.5">{formatJPY(product.lifetime_sales_jpy)}</p>
                 )}
               </div>
             </div>
@@ -128,147 +128,75 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   );
 }
 
-// ── ヒーローに浮かぶクリエイターアバター ────────────────────────────
-interface FloatingBubble {
-  id: number;
+// ── ヒーローに浮かぶクリエイターアバター（CSS animation で軽量化）───
+interface StaticBubble {
   creatorIndex: number;
   x: number;
   y: number;
   size: number;
-  floatY: number;
+  delay: number;
   floatDuration: number;
 }
 
-// 画面全体を密にカバー（中央テキスト部分は避ける）
-const BUBBLE_ZONES = [
-  // 左帯 広め
-  { xMin: 1, xMax: 20, yMin: 3, yMax: 95, w: 3 },
-  // 右帯 広め
-  { xMin: 80, xMax: 99, yMin: 3, yMax: 95, w: 3 },
-  // 左中上
-  { xMin: 20, xMax: 35, yMin: 3, yMax: 28, w: 2 },
-  // 左中下
-  { xMin: 20, xMax: 35, yMin: 70, yMax: 97, w: 2 },
-  // 右中上
-  { xMin: 65, xMax: 80, yMin: 3, yMax: 28, w: 2 },
-  // 右中下
-  { xMin: 65, xMax: 80, yMin: 70, yMax: 97, w: 2 },
-  // 上部中央ワイド
-  { xMin: 30, xMax: 70, yMin: 1, yMax: 14, w: 2 },
-  // 下部中央ワイド
-  { xMin: 30, xMax: 70, yMin: 80, yMax: 99, w: 2 },
-];
-
-function randomInZone() {
-  // 重み付きランダム選択
-  const totalWeight = BUBBLE_ZONES.reduce((s, z) => s + (z.w || 1), 0);
-  let r = Math.random() * totalWeight;
-  let zone = BUBBLE_ZONES[0];
-  for (const z of BUBBLE_ZONES) {
-    r -= z.w || 1;
-    if (r <= 0) { zone = z; break; }
-  }
-  return {
-    x: zone.xMin + Math.random() * (zone.xMax - zone.xMin),
-    y: zone.yMin + Math.random() * (zone.yMax - zone.yMin),
-  };
-}
-
-const SIZES = [40, 48, 56, 64, 72];
-const MAX_BUBBLES = 10;
-const INITIAL_COUNT = 6;
-
 function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
-  const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
-  const counterRef = useRef(0);
-
-  const spawnBubble = useCallback(() => {
-    if (creators.length === 0) return;
-    const pos = randomInZone();
-    const bubble: FloatingBubble = {
-      id: counterRef.current++,
-      creatorIndex: Math.floor(Math.random() * creators.length),
-      x: pos.x,
-      y: pos.y,
-      size: SIZES[Math.floor(Math.random() * SIZES.length)],
-      floatY: 5 + Math.random() * 8,
-      floatDuration: 2.5 + Math.random() * 2,
-    };
-    setBubbles((prev) => [...prev.slice(-(MAX_BUBBLES - 1)), bubble]);
+  const bubbles = useMemo<StaticBubble[]>(() => {
+    if (creators.length === 0) return [];
+    const ZONES = [
+      { xMin: 2, xMax: 18, yMin: 5, yMax: 90 },
+      { xMin: 82, xMax: 98, yMin: 5, yMax: 90 },
+      { xMin: 20, xMax: 32, yMin: 5, yMax: 25 },
+      { xMin: 20, xMax: 32, yMin: 72, yMax: 92 },
+      { xMin: 68, xMax: 80, yMin: 5, yMax: 25 },
+      { xMin: 68, xMax: 80, yMin: 72, yMax: 92 },
+      { xMin: 35, xMax: 65, yMin: 2, yMax: 12 },
+      { xMin: 35, xMax: 65, yMin: 85, yMax: 96 },
+    ];
+    const SIZES = [40, 48, 52, 56];
+    return ZONES.map((z, i) => ({
+      creatorIndex: i % creators.length,
+      x: z.xMin + Math.random() * (z.xMax - z.xMin),
+      y: z.yMin + Math.random() * (z.yMax - z.yMin),
+      size: SIZES[i % SIZES.length],
+      delay: i * 0.7,
+      floatDuration: 3 + (i % 3),
+    }));
   }, [creators]);
 
-  useEffect(() => {
-    if (creators.length === 0) return;
-    const timers: NodeJS.Timeout[] = [];
-    for (let i = 0; i < INITIAL_COUNT; i++) {
-      timers.push(setTimeout(() => spawnBubble(), i * 150));
-    }
-    const interval = setInterval(spawnBubble, 1000);
-    return () => {
-      timers.forEach(clearTimeout);
-      clearInterval(interval);
-    };
-  }, [spawnBubble, creators.length]);
+  if (creators.length === 0) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-[1]" aria-hidden>
-      <AnimatePresence>
-        {bubbles.map((b) => {
-          const creator = creators[b.creatorIndex];
-          return (
-            <motion.div
-              key={b.id}
-              initial={{ opacity: 0, scale: 0, y: 30 }}
-              animate={{
-                opacity: [0, 0.9, 0.9, 0],
-                scale: [0.2, 1, 1, 0.5],
-                y: [30, 0, 0, -15],
-              }}
-              transition={{
-                duration: 6,
-                times: [0, 0.1, 0.82, 1],
-                ease: 'easeInOut',
-              }}
-              onAnimationComplete={() => {
-                setBubbles((prev) => prev.filter((p) => p.id !== b.id));
-              }}
-              className="absolute -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${b.x}%`, top: `${b.y}%` }}
-            >
-              <motion.div
-                animate={{ y: [-b.floatY / 2, b.floatY / 2] }}
-                transition={{
-                  duration: b.floatDuration,
-                  repeat: Infinity,
-                  repeatType: 'reverse',
-                  ease: 'easeInOut',
-                }}
+      {bubbles.map((b, i) => {
+        const creator = creators[b.creatorIndex];
+        return (
+          <div
+            key={i}
+            className="absolute -translate-x-1/2 -translate-y-1/2 animate-[fadeFloat_7s_ease-in-out_infinite]"
+            style={{
+              left: `${b.x}%`,
+              top: `${b.y}%`,
+              animationDelay: `${b.delay}s`,
+              animationDuration: `${b.floatDuration + 4}s`,
+            }}
+          >
+            <div className="flex flex-col items-center">
+              <div
+                className="rounded-full border-2 border-white/80 shadow-lg shadow-purple-200/20 overflow-hidden bg-white"
+                style={{ width: b.size, height: b.size }}
               >
-                {/* 画像が上・名前が下の縦レイアウト */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className="rounded-full border-[3px] border-white/90 shadow-xl shadow-purple-300/30 overflow-hidden bg-white ring-2 ring-purple-100/40"
-                    style={{ width: b.size, height: b.size }}
-                  >
-                    {creator.image_url ? (
-                      <img
-                        src={creator.image_url}
-                        alt={creator.display_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
-                    )}
-                  </div>
-                  <span className="mt-1.5 text-[10px] font-semibold text-purple-700/80 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-0.5 shadow-md shadow-purple-200/30 whitespace-nowrap border border-purple-100/50">
-                    {creator.display_name}
-                  </span>
-                </div>
-              </motion.div>
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
+                {creator.image_url ? (
+                  <img src={creator.image_url} alt={creator.display_name} className="w-full h-full object-cover" />
+                ) : (
+                  <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
+                )}
+              </div>
+              <span className="mt-1 text-[9px] font-medium text-purple-600/70 bg-white/80 rounded-full px-2 py-0.5 whitespace-nowrap">
+                {creator.display_name}
+              </span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -302,42 +230,21 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
 
   return (
     <div className="bg-gradient-to-b from-white via-purple-50/10 to-white">
-      <section ref={heroRef} className="relative overflow-hidden h-screen flex items-center justify-center">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-100/30 via-pink-50/10 to-transparent" />
+      <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center justify-center py-20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-50/40 via-transparent to-transparent" />
 
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px)',
-          backgroundSize: '80px 80px',
-        }} />
-
-        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-purple-200/30 to-pink-200/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-[700px] h-[700px] bg-gradient-to-tr from-violet-200/25 to-purple-200/20 rounded-full blur-3xl" />
-
-        {/* クリエイターアバターのポップアップ */}
+        {/* クリエイターアバター（CSS animation のみ） */}
         <FloatingCreatorBubbles creators={creators} />
 
-        <motion.div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            className="max-w-5xl mx-auto text-center"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
-            <motion.div
-              className="inline-block mb-4"
-              variants={fadeInUp}
-              transition={{ duration: 0.2 }}
-            >
-              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium shadow-sm shadow-purple-200/50">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="inline-block mb-4 animate-[fadeIn_0.5s_ease]">
+              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium">
                 在庫ゼロからスタート
               </Badge>
-            </motion.div>
+            </div>
 
-            <motion.h1
-              className="text-5xl md:text-7xl font-bold mb-4 leading-[1.1] tracking-tight"
-              variants={fadeInUp}
-              transition={{ duration: 0.25, delay: 0.03 }}
-            >
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-[1.1] tracking-tight animate-[fadeIn_0.6s_ease]">
               <span className="inline-block bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
                 在庫ゼロで、
               </span>
@@ -345,22 +252,19 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
               <span className="inline-block bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
                 ブランドを走らせる。
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.div
-              className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto"
-              variants={fadeInUp}
-              transition={{ duration: 0.25, delay: 0.06 }}
-            >
+            {/* 3Dプロダクトカルーセル（見出し直下） */}
+            <div className="mb-6 animate-[fadeIn_0.8s_ease]">
+              <Hero3DCarousel products={products.slice(0, 7)} />
+            </div>
+
+            <div className="text-base md:text-lg text-gray-600 mb-6 leading-relaxed max-w-2xl mx-auto animate-[fadeIn_0.9s_ease]">
               <p className="text-gray-900 font-semibold mb-1.5 text-lg md:text-xl">審査を通過すれば、0円で収益化可能。</p>
               <p className="text-gray-600 text-sm md:text-base">クラファンに必要な全ての費用を当社が負担します。</p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
-              variants={fadeInUp}
-              transition={{ duration: 0.25, delay: 0.09 }}
-            >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-[fadeIn_1s_ease]">
               <Link href="/apply">
                 <Button
                   size="lg"
@@ -374,72 +278,44 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-purple-200 text-purple-900 hover:bg-purple-50 hover:border-purple-300 text-sm px-10 py-6 transition-all duration-300 rounded-xl font-semibold backdrop-blur-sm"
+                  className="border-2 border-purple-200 text-purple-900 hover:bg-purple-50 hover:border-purple-300 text-sm px-10 py-6 transition-all duration-300 rounded-xl font-semibold"
                 >
                   無料相談を申し込む
                 </Button>
               </Link>
-            </motion.div>
+            </div>
 
-            {/* 3Dプロダクトカルーセル */}
-            <motion.div
-              variants={fadeInUp}
-              transition={{ duration: 0.4, delay: 0.12 }}
-              className="mb-6"
-            >
-              <Hero3DCarousel products={products.slice(0, 7)} />
-            </motion.div>
-
-            {/* 実績カウンター (コンパクト) */}
-            <motion.div
-              className="flex flex-wrap justify-center gap-3 md:gap-5 max-w-3xl mx-auto mb-6"
-              variants={fadeInUp}
-              transition={{ duration: 0.3, delay: 0.16 }}
-            >
+            {/* 実績カウンター */}
+            <div className="flex flex-wrap justify-center gap-3 md:gap-5 max-w-3xl mx-auto mb-6 animate-[fadeIn_1.1s_ease]">
               {[
                 { label: '累計売上', value: Math.round(totalSales / 10000), suffix: '万円', icon: TrendingUp, color: 'from-purple-500 to-pink-500' },
                 { label: 'クリエイター', value: totalCreators, suffix: '名', icon: Users, color: 'from-pink-500 to-rose-500' },
                 { label: 'プロジェクト', value: totalProducts, suffix: '件', icon: Package, color: 'from-violet-500 to-purple-500' },
                 { label: '平均達成率', value: avgFundingPercent, suffix: '%', icon: Target, color: 'from-fuchsia-500 to-pink-500' },
-              ].map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: 0.18 + i * 0.06 }}
-                >
-                  <div className="bg-white/70 backdrop-blur-md rounded-xl px-4 py-2.5 border border-purple-100/40 shadow-md shadow-purple-100/15 flex items-center gap-2.5">
-                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} shadow-sm`}>
-                      <stat.icon className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-lg md:text-xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent leading-tight">
-                        <CountUpAnimation end={stat.value} duration={2} />
-                        <span className="text-sm ml-0.5">{stat.suffix}</span>
-                      </div>
-                      <div className="text-[10px] text-gray-500 font-medium leading-tight">{stat.label}</div>
-                    </div>
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white/70 rounded-xl px-4 py-2.5 border border-purple-100/40 shadow-sm flex items-center gap-2.5">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color}`}>
+                    <stat.icon className="w-4 h-4 text-white" />
                   </div>
-                </motion.div>
+                  <div>
+                    <div className="text-lg md:text-xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent leading-tight">
+                      <CountUpAnimation end={stat.value} duration={2} />
+                      <span className="text-sm ml-0.5">{stat.suffix}</span>
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-medium leading-tight">{stat.label}</div>
+                  </div>
+                </div>
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="flex justify-center"
-              variants={fadeInUp}
-              transition={{ duration: 0.25, delay: 0.22 }}
-            >
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                className="flex flex-col items-center text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
-              >
+            <div className="flex justify-center animate-[fadeIn_1.2s_ease]">
+              <div className="flex flex-col items-center text-gray-400 cursor-pointer hover:text-gray-600 transition-colors animate-[float_2.5s_ease-in-out_infinite]">
                 <span className="text-[10px] tracking-wider uppercase mb-2">スクロールして詳しく見る</span>
                 <ChevronDown className="w-4 h-4" />
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="py-20 relative">
