@@ -157,132 +157,106 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
 
   return (
     <div className="bg-gradient-to-b from-white via-purple-50/10 to-white">
-      <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center justify-center py-20">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-50/40 via-transparent to-transparent" />
-
-        {/* 左上・右上 クリエイターアバター（静的装飾） */}
-        {creators.length > 0 && (
-          <div className="absolute inset-0 pointer-events-none z-[1] hidden md:block" aria-hidden>
-            {/* 左上 */}
-            {creators.slice(0, 3).map((c, i) => {
-              const positions = [
-                { top: '8%', left: '5%', size: 56 },
-                { top: '18%', left: '12%', size: 48 },
-                { top: '6%', left: '16%', size: 40 },
-              ];
-              const p = positions[i];
-              return (
-                <div key={`left-${i}`} className="absolute opacity-60" style={{ top: p.top, left: p.left }}>
-                  <div className="rounded-full border-2 border-white shadow-lg overflow-hidden bg-white" style={{ width: p.size, height: p.size }}>
-                    {c.image_url ? (
-                      <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
-                    ) : (
-                      <AvatarGenerator seed={c.avatar_seed} size={p.size} />
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-            {/* 右上 */}
-            {creators.slice(3, 6).map((c, i) => {
-              const positions = [
-                { top: '8%', right: '5%', size: 56 },
-                { top: '18%', right: '12%', size: 48 },
-                { top: '6%', right: '16%', size: 40 },
-              ];
-              const p = positions[i];
-              return (
-                <div key={`right-${i}`} className="absolute opacity-60" style={{ top: p.top, right: p.right }}>
-                  <div className="rounded-full border-2 border-white shadow-lg overflow-hidden bg-white" style={{ width: p.size, height: p.size }}>
-                    {c.image_url ? (
-                      <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
-                    ) : (
-                      <AvatarGenerator seed={c.avatar_seed} size={p.size} />
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+      <section ref={heroRef} className="relative overflow-hidden min-h-screen flex flex-col justify-center py-16 md:py-20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-50/50 via-transparent to-transparent" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-            <div className="inline-block mb-4 animate-[fadeIn_0.5s_ease]">
-              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium">
-                在庫ゼロからスタート
-              </Badge>
-            </div>
+          {/* ── 上段: コピー（左）＆ カルーセル（右）──── */}
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-12 md:mb-16">
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-[1.1] tracking-tight animate-[fadeIn_0.6s_ease]">
-              <span className="inline-block bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-                在庫ゼロで、
-              </span>
-              <br />
-              <span className="inline-block bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
-                ブランドを走らせる。
-              </span>
-            </h1>
-
-            {/* 3Dプロダクトカルーセル（見出し直下） */}
-            <div className="mb-6 animate-[fadeIn_0.8s_ease]">
-              <Hero3DCarousel products={products.slice(0, 7)} />
-            </div>
-
-            <div className="text-base md:text-lg text-gray-600 mb-6 leading-relaxed max-w-2xl mx-auto animate-[fadeIn_0.9s_ease]">
-              <p className="text-gray-900 font-semibold mb-1.5 text-lg md:text-xl">審査を通過すれば、0円で収益化可能。</p>
-              <p className="text-gray-600 text-sm md:text-base">クラファンに必要な全ての費用を当社が負担します。</p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-[fadeIn_1s_ease]">
-              <Link href="/apply">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm px-10 py-6 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
-                >
-                  アイデアを応募する
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-              <Link href="/apply#call">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-purple-200 text-purple-900 hover:bg-purple-50 hover:border-purple-300 text-sm px-10 py-6 transition-all duration-300 rounded-xl font-semibold"
-                >
-                  無料相談を申し込む
-                </Button>
-              </Link>
-            </div>
-
-            {/* 実績カウンター */}
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6 max-w-4xl mx-auto mb-6 animate-[fadeIn_1.1s_ease]">
-              {[
-                { label: '累計売上', value: Math.round(totalSales / 10000), suffix: '万円', icon: TrendingUp, color: 'from-purple-500 to-pink-500' },
-                { label: 'クリエイター', value: totalCreators, suffix: '名', icon: Users, color: 'from-pink-500 to-rose-500' },
-                { label: 'プロジェクト', value: totalProducts, suffix: '件', icon: Package, color: 'from-violet-500 to-purple-500' },
-                { label: '平均達成率', value: avgFundingPercent, suffix: '%', icon: Target, color: 'from-fuchsia-500 to-pink-500' },
-              ].map((stat) => (
-                <div key={stat.label} className="bg-white/70 rounded-xl px-5 py-3 border border-purple-100/40 shadow-sm flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color}`}>
-                    <stat.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent leading-tight">
-                      <CountUpAnimation end={stat.value} duration={2} />
-                      <span className="text-base md:text-lg ml-0.5">{stat.suffix}</span>
-                    </div>
-                    <div className="text-[11px] text-gray-500 font-medium leading-tight">{stat.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center animate-[fadeIn_1.2s_ease]">
-              <div className="flex flex-col items-center text-gray-400 cursor-pointer hover:text-gray-600 transition-colors animate-[float_2.5s_ease-in-out_infinite]">
-                <span className="text-[10px] tracking-wider uppercase mb-2">スクロールして詳しく見る</span>
-                <ChevronDown className="w-4 h-4" />
+            {/* 左: テキスト + CTA */}
+            <div className="text-center md:text-left animate-[fadeIn_0.5s_ease]">
+              <div className="inline-block mb-5">
+                <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium">
+                  在庫ゼロからスタート
+                </Badge>
               </div>
+
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.08] tracking-tight">
+                <span className="block bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
+                  在庫ゼロで、
+                </span>
+                <span className="block bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  ブランドを走らせる。
+                </span>
+              </h1>
+
+              <div className="mb-8">
+                <p className="text-gray-900 font-semibold mb-2 text-lg md:text-xl">審査を通過すれば、0円で収益化可能。</p>
+                <p className="text-gray-500 text-sm md:text-base">クラファンに必要な全ての費用を当社が負担します。</p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                <Link href="/apply">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm px-10 py-6 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
+                  >
+                    アイデアを応募する
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link href="/apply#call">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-2 border-purple-200 text-purple-900 hover:bg-purple-50 hover:border-purple-300 text-sm px-10 py-6 transition-all duration-300 rounded-xl font-semibold"
+                  >
+                    無料相談を申し込む
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* 右: 3Dカルーセル + クリエイターアバター */}
+            <div className="animate-[fadeIn_0.8s_ease]">
+              <Hero3DCarousel products={products.slice(0, 7)} />
+              {/* クリエイターアバター行 */}
+              {creators.length > 0 && (
+                <div className="flex items-center justify-center gap-3 mt-6">
+                  <div className="flex -space-x-3">
+                    {creators.slice(0, 5).map((c, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-white" style={{ zIndex: 5 - i }}>
+                        {c.image_url ? (
+                          <img src={c.image_url} alt={c.display_name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <AvatarGenerator seed={c.avatar_seed} size={40} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">{totalCreators}名</span>のクリエイターが参加中</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── 下段: 実績カウンター 4列 ──── */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto animate-[fadeIn_1s_ease]">
+            {[
+              { label: '累計売上', value: Math.round(totalSales / 10000), suffix: '万円', icon: TrendingUp, color: 'from-purple-500 to-pink-500' },
+              { label: 'クリエイター数', value: totalCreators, suffix: '名', icon: Users, color: 'from-pink-500 to-rose-500' },
+              { label: 'プロジェクト数', value: totalProducts, suffix: '件', icon: Package, color: 'from-violet-500 to-purple-500' },
+              { label: '平均達成率', value: avgFundingPercent, suffix: '%', icon: Target, color: 'from-fuchsia-500 to-pink-500' },
+            ].map((stat) => (
+              <div key={stat.label} className="bg-white/80 rounded-2xl p-5 md:p-6 border border-purple-100/40 shadow-lg shadow-purple-100/10 text-center">
+                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br ${stat.color} mb-3 shadow-md`}>
+                  <stat.icon className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent leading-tight">
+                  <CountUpAnimation end={stat.value} duration={2} />
+                  <span className="text-lg md:text-xl ml-0.5">{stat.suffix}</span>
+                </div>
+                <div className="text-xs text-gray-500 font-medium mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* スクロール案内 */}
+          <div className="flex justify-center mt-10 animate-[fadeIn_1.2s_ease]">
+            <div className="flex flex-col items-center text-gray-400 cursor-pointer hover:text-gray-600 transition-colors animate-[float_2.5s_ease-in-out_infinite]">
+              <span className="text-[10px] tracking-wider uppercase mb-2">スクロールして詳しく見る</span>
+              <ChevronDown className="w-4 h-4" />
             </div>
           </div>
         </div>
