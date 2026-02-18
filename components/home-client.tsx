@@ -67,21 +67,29 @@ function CountUpAnimation({ end, duration = 1 }: { end: number; duration?: numbe
 interface FloatingBubble {
   id: number;
   creatorIndex: number;
-  x: number;   // % (5–95)
-  y: number;   // % (5–95)
-  size: number; // px
+  x: number;
+  y: number;
+  size: number;
+  floatY: number;    // 上下揺れの振幅
+  floatDuration: number; // 揺れの周期
 }
 
-// 中央テキストと重ならないように配置する位置候補
+// 画面全体に散りばめるゾーン（中央テキスト周辺は避ける）
 const BUBBLE_ZONES = [
-  // 左側
-  { xMin: 3, xMax: 22, yMin: 8, yMax: 88 },
-  // 右側
-  { xMin: 78, xMax: 97, yMin: 8, yMax: 88 },
-  // 上部中央
-  { xMin: 22, xMax: 78, yMin: 3, yMax: 18 },
-  // 下部中央
-  { xMin: 22, xMax: 78, yMin: 78, yMax: 95 },
+  // 左帯
+  { xMin: 1, xMax: 18, yMin: 5, yMax: 92 },
+  // 右帯
+  { xMin: 82, xMax: 99, yMin: 5, yMax: 92 },
+  // 左中
+  { xMin: 18, xMax: 32, yMin: 5, yMax: 30 },
+  { xMin: 18, xMax: 32, yMin: 72, yMax: 95 },
+  // 右中
+  { xMin: 68, xMax: 82, yMin: 5, yMax: 30 },
+  { xMin: 68, xMax: 82, yMin: 72, yMax: 95 },
+  // 上部ワイド
+  { xMin: 25, xMax: 75, yMin: 2, yMax: 15 },
+  // 下部ワイド
+  { xMin: 25, xMax: 75, yMin: 82, yMax: 98 },
 ];
 
 function randomInZone() {
@@ -91,6 +99,8 @@ function randomInZone() {
     y: zone.yMin + Math.random() * (zone.yMax - zone.yMin),
   };
 }
+
+const SIZES = [36, 44, 52, 56, 64, 72, 80];
 
 function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
   const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
@@ -104,23 +114,24 @@ function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
       creatorIndex: Math.floor(Math.random() * creators.length),
       x: pos.x,
       y: pos.y,
-      size: 48 + Math.random() * 24, // 48–72px
+      size: SIZES[Math.floor(Math.random() * SIZES.length)],
+      floatY: 6 + Math.random() * 10,
+      floatDuration: 2.5 + Math.random() * 2,
     };
-    setBubbles((prev) => [...prev.slice(-5), bubble]); // 最大6個
+    setBubbles((prev) => [...prev.slice(-11), bubble]); // 最大12個
   }, [creators]);
 
   useEffect(() => {
     if (creators.length === 0) return;
-    // 初期表示: 少しずらして3つ表示
-    const t0 = setTimeout(() => spawnBubble(), 300);
-    const t1 = setTimeout(() => spawnBubble(), 900);
-    const t2 = setTimeout(() => spawnBubble(), 1500);
-    // 以降は一定間隔で追加
-    const interval = setInterval(spawnBubble, 2200);
+    // 初期表示: すぐに8個ばらまく
+    const timers: NodeJS.Timeout[] = [];
+    for (let i = 0; i < 8; i++) {
+      timers.push(setTimeout(() => spawnBubble(), i * 200));
+    }
+    // 以降は短い間隔で追加
+    const interval = setInterval(spawnBubble, 1400);
     return () => {
-      clearTimeout(t0);
-      clearTimeout(t1);
-      clearTimeout(t2);
+      timers.forEach(clearTimeout);
       clearInterval(interval);
     };
   }, [spawnBubble, creators.length]);
@@ -133,41 +144,53 @@ function FloatingCreatorBubbles({ creators }: { creators: Creator[] }) {
           return (
             <motion.div
               key={b.id}
-              initial={{ opacity: 0, scale: 0.3 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{
+                opacity: [0, 0.85, 0.85, 0],
+                scale: [0.3, 1, 1, 0.6],
+                y: [20, 0, 0, -10],
+              }}
               transition={{
-                duration: 0.6,
-                ease: 'easeOut',
+                duration: 5,
+                times: [0, 0.12, 0.8, 1],
+                ease: 'easeInOut',
               }}
-              // 3.5秒後に自動で退場
               onAnimationComplete={() => {
-                setTimeout(() => {
-                  setBubbles((prev) => prev.filter((p) => p.id !== b.id));
-                }, 3500);
+                setBubbles((prev) => prev.filter((p) => p.id !== b.id));
               }}
-              className="absolute"
+              className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: `${b.x}%`, top: `${b.y}%` }}
             >
-              <div
-                className="rounded-full border-2 border-white shadow-lg shadow-purple-200/40 overflow-hidden bg-white"
-                style={{ width: b.size, height: b.size }}
+              {/* ゆっくり上下にフロート */}
+              <motion.div
+                animate={{ y: [-b.floatY / 2, b.floatY / 2] }}
+                transition={{
+                  duration: b.floatDuration,
+                  repeat: Infinity,
+                  repeatType: 'reverse',
+                  ease: 'easeInOut',
+                }}
               >
-                {creator.image_url ? (
-                  <img
-                    src={creator.image_url}
-                    alt={creator.display_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
-                )}
-              </div>
-              <div className="mt-1 text-center">
-                <span className="text-[10px] font-medium text-gray-500 bg-white/80 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm whitespace-nowrap">
-                  {creator.display_name}
-                </span>
-              </div>
+                <div
+                  className="rounded-full border-[3px] border-white/90 shadow-xl shadow-purple-300/30 overflow-hidden bg-white ring-2 ring-purple-100/40"
+                  style={{ width: b.size, height: b.size }}
+                >
+                  {creator.image_url ? (
+                    <img
+                      src={creator.image_url}
+                      alt={creator.display_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <AvatarGenerator seed={creator.avatar_seed} size={b.size} />
+                  )}
+                </div>
+                <div className="mt-1.5 text-center">
+                  <span className="text-[10px] font-semibold text-purple-700/80 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-0.5 shadow-md shadow-purple-200/30 whitespace-nowrap border border-purple-100/50">
+                    {creator.display_name}
+                  </span>
+                </div>
+              </motion.div>
             </motion.div>
           );
         })}
