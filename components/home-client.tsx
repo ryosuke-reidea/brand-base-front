@@ -78,28 +78,29 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   if (total === 0) return null;
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto h-[200px] md:h-[260px]" style={{ perspective: '1200px' }}>
+    <div className="relative w-full h-[220px] md:h-[280px] overflow-hidden" style={{ perspective: '1000px' }}>
       {items.map((product, i) => {
         const offset = ((i - active + total) % total) - Math.floor(total / 2);
         const absOffset = Math.abs(offset);
         const isCenter = offset === 0;
+        if (absOffset > 2) return null;
         return (
           <motion.div
             key={product.slug}
             className="absolute top-1/2 left-1/2 cursor-pointer will-change-transform"
             animate={{
-              x: `calc(-50% + ${offset * 190}px)`,
+              x: `calc(-50% + ${offset * 140}px)`,
               y: '-50%',
-              z: isCenter ? 0 : -absOffset * 100,
-              scale: isCenter ? 1 : Math.max(0.55, 1 - absOffset * 0.18),
-              opacity: absOffset > 3 ? 0 : isCenter ? 1 : Math.max(0.25, 1 - absOffset * 0.28),
-              rotateY: offset * -6,
+              z: isCenter ? 0 : -absOffset * 80,
+              scale: isCenter ? 1 : Math.max(0.65, 1 - absOffset * 0.18),
+              opacity: isCenter ? 1 : Math.max(0.35, 1 - absOffset * 0.3),
+              rotateY: offset * -5,
             }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             style={{ transformStyle: 'preserve-3d', zIndex: total - absOffset }}
             onClick={() => setActive(i)}
           >
-            <div className={`w-[170px] md:w-[230px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/30' : 'border-white/60 shadow-gray-200/20'}`}>
+            <div className={`w-[160px] md:w-[210px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/30' : 'border-white/60 shadow-gray-200/20'}`}>
               <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" loading="lazy" />
