@@ -316,10 +316,43 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
               </Link>
             </motion.div>
 
+            {/* 実績カウンター */}
+            <motion.div
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto mb-16"
+              variants={fadeInUp}
+              transition={{ duration: 0.3, delay: 0.12 }}
+            >
+              {[
+                { label: '累計売上', value: Math.round(totalSales / 10000), suffix: '万円', icon: TrendingUp, color: 'from-purple-500 to-pink-500' },
+                { label: 'クリエイター数', value: totalCreators, suffix: '名', icon: Users, color: 'from-pink-500 to-rose-500' },
+                { label: 'プロジェクト数', value: totalProducts, suffix: '件', icon: Package, color: 'from-violet-500 to-purple-500' },
+                { label: '平均達成率', value: avgFundingPercent, suffix: '%', icon: Target, color: 'from-fuchsia-500 to-pink-500' },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  className="relative group"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
+                >
+                  <div className="bg-white/80 backdrop-blur-md rounded-2xl p-5 md:p-6 border border-purple-100/50 shadow-lg shadow-purple-100/20 hover:shadow-xl hover:shadow-purple-200/30 transition-all duration-300 hover:-translate-y-1">
+                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} mb-3 shadow-md`}>
+                      <stat.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-br from-gray-900 to-purple-900 bg-clip-text text-transparent">
+                      <CountUpAnimation end={stat.value} duration={2} />
+                      <span className="text-lg md:text-xl ml-0.5">{stat.suffix}</span>
+                    </div>
+                    <div className="text-xs md:text-sm text-gray-500 mt-1 font-medium">{stat.label}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
             <motion.div
               className="flex justify-center"
               variants={fadeInUp}
-              transition={{ duration: 0.25, delay: 0.12 }}
+              transition={{ duration: 0.25, delay: 0.18 }}
             >
               <motion.div
                 animate={{ y: [0, 8, 0] }}
