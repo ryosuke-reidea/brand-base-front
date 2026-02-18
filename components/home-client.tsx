@@ -190,7 +190,7 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
 
             {/* 左（SPでは下）: テキスト + CTA */}
             <div className="text-center md:text-left animate-[fadeIn_0.7s_ease] md:order-1">
-              <div className="inline-block mb-5">
+              <div className="hidden md:inline-block mb-5">
                 <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium">
                   在庫ゼロからスタート
                 </Badge>
