@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AutoScrollCarousel, ProductScrollCarousel } from '@/components/auto-scroll-carousel';
-import { IdeaCard } from '@/components/idea-card';
+import { AutoScrollCarousel, ProductScrollCarousel, IdeaScrollCarousel } from '@/components/auto-scroll-carousel';
 import { formatJPY } from '@/lib/utils';
 import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
@@ -152,7 +151,6 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
       products.filter((p) => p.funding_percent).length || 0
   );
 
-  const featuredIdeas = ideas.slice(0, 4);
 
 
 
@@ -411,19 +409,8 @@ export function HomeClient({ creators, products, rankings, ideas }: HomeClientPr
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
               </Link>
             </motion.div>
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-              variants={staggerContainer}
-            >
-              {featuredIdeas.map((idea, index) => (
-                <motion.div
-                  key={idea.slug}
-                  variants={fadeInUp}
-                  transition={{ duration: 0.2, delay: index * 0.03 }}
-                >
-                  <IdeaCard idea={idea} />
-                </motion.div>
-              ))}
+            <motion.div variants={fadeInUp}>
+              <IdeaScrollCarousel ideas={ideas} />
             </motion.div>
           </motion.div>
         </div>

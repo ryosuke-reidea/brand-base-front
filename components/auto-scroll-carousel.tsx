@@ -1,8 +1,9 @@
 'use client';
 import { useRef, useEffect, useCallback, ReactNode } from 'react';
-import { Creator, Product } from '@/types';
+import { Creator, Product, IdeaProduct } from '@/types';
 import { CreatorCard } from './creator-card';
 import { ProductCard } from './product-card';
+import { IdeaCard } from './idea-card';
 
 // ── 自動スクロール + ホバー時手動操作（単一DOM・transformベース） ────
 function ScrollTrack({ children, speed = 0.5 }: {
@@ -204,6 +205,20 @@ export function ProductScrollCarousel({ products }: { products: Product[] }) {
       {products.map((product) => (
         <div key={product.slug} className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px]">
           <ProductCard product={product} />
+        </div>
+      ))}
+    </ScrollTrack>
+  );
+}
+
+// ── IDEAカルーセル ─────────────────────────────────────────
+export function IdeaScrollCarousel({ ideas }: { ideas: IdeaProduct[] }) {
+  if (ideas.length === 0) return null;
+  return (
+    <ScrollTrack speed={0.5}>
+      {ideas.map((idea) => (
+        <div key={idea.slug} className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px]">
+          <IdeaCard idea={idea} />
         </div>
       ))}
     </ScrollTrack>
