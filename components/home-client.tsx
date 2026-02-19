@@ -10,6 +10,7 @@ import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb,
 import { motion, useInView } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
+import { SiteSettings } from '@/lib/db-queries';
 import { AvatarGenerator } from '@/components/avatar-generator';
 
 const fadeIn = {
@@ -134,22 +135,30 @@ interface HomeClientProps {
   products: Product[];
   rankings: Rankings;
   ideas: IdeaProduct[];
+  siteSettings?: SiteSettings;
 }
 
-export function HomeClient({ creators, products, rankings, ideas }: HomeClientProps) {
+export function HomeClient({ creators, products, rankings, ideas, siteSettings }: HomeClientProps) {
   const [activeTab, setActiveTab] = useState<'personal' | 'single' | 'product'>('personal');
 
   const heroRef = useRef(null);
 
+  // DB自動計算値
   const creatorSales = creators.reduce((sum, c) => sum + c.lifetime_sales_jpy, 0);
   const productSales = products.reduce((sum, p) => sum + p.lifetime_sales_jpy, 0);
-  const totalSales = Math.max(creatorSales, productSales);
-  const totalProducts = products.length;
-  const totalCreators = creators.length;
-  const avgFundingPercent = Math.round(
+  const autoTotalSales = Math.max(creatorSales, productSales);
+  const autoTotalProducts = products.length;
+  const autoTotalCreators = creators.length;
+  const autoAvgFunding = Math.round(
     products.filter((p) => p.funding_percent).reduce((sum, p) => sum + (p.funding_percent || 0), 0) /
       products.filter((p) => p.funding_percent).length || 0
   );
+
+  // 管理画面で0以外が設定されていればそちらを優先
+  const totalSales = (siteSettings?.total_sales && siteSettings.total_sales > 0) ? siteSettings.total_sales : autoTotalSales;
+  const totalCreators = (siteSettings?.total_creators && siteSettings.total_creators > 0) ? siteSettings.total_creators : autoTotalCreators;
+  const totalProducts = (siteSettings?.total_products && siteSettings.total_products > 0) ? siteSettings.total_products : autoTotalProducts;
+  const avgFundingPercent = (siteSettings?.avg_funding_percent && siteSettings.avg_funding_percent > 0) ? siteSettings.avg_funding_percent : autoAvgFunding;
 
 
 

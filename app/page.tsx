@@ -1,4 +1,4 @@
-import { getAllCreators, getAllProducts, getRankings, getPublishedIdeas } from '@/lib/db-queries';
+import { getAllCreators, getAllProducts, getRankings, getPublishedIdeas, getSiteSettings } from '@/lib/db-queries';
 import { HomeClient } from '@/components/home-client';
 import type { Metadata } from 'next';
 
@@ -10,11 +10,12 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [creators, products, rankings, ideas] = await Promise.all([
+  const [creators, products, rankings, ideas, siteSettings] = await Promise.all([
     getAllCreators(),
     getAllProducts(),
     getRankings(),
     getPublishedIdeas(),
+    getSiteSettings(),
   ]);
 
   return (
@@ -23,6 +24,7 @@ export default async function HomePage() {
       products={products}
       rankings={rankings}
       ideas={ideas}
+      siteSettings={siteSettings}
     />
   );
 }

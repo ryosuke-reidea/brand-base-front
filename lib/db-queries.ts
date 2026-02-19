@@ -153,6 +153,37 @@ export async function submitApplication(applicationData: {
   return data;
 }
 
+// ─── LP設定値の取得 ──────────────────────────────────────────
+export interface SiteSettings {
+  total_sales: number;
+  total_creators: number;
+  total_products: number;
+  avg_funding_percent: number;
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('key, value');
+
+  if (error) {
+    console.error('Error fetching site_settings:', error);
+    return { total_sales: 0, total_creators: 0, total_products: 0, avg_funding_percent: 0 };
+  }
+
+  const map: Record<string, number> = {};
+  (data || []).forEach(row => {
+    map[row.key] = Number(row.value) || 0;
+  });
+
+  return {
+    total_sales: map['total_sales'] || 0,
+    total_creators: map['total_creators'] || 0,
+    total_products: map['total_products'] || 0,
+    avg_funding_percent: map['avg_funding_percent'] || 0,
+  };
+}
+
 // ─── 旧テーブル用（既存ページで使っている場合のため残す） ───────────────────
 export async function getAllIdeas(): Promise<Idea[]> {
   const { data, error } = await supabase
