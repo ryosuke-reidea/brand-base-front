@@ -5,28 +5,26 @@ import { CreatorCard } from './creator-card';
 import { ProductCard } from './product-card';
 import { IdeaCard } from './idea-card';
 
-// ── 自動スクロール + ホバー時手動操作（単一DOM・transformベース） ────
+// ── 自動スクロール + ホバー時滑らか横スクロール ─────────────────
 function ScrollTrack({ children, speed = 0.5 }: {
   children: ReactNode;
   speed?: number;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const offset = useRef(0);       // 現在のtranslateX (px, 正の値=左方向)
+  const offset = useRef(0);
+  const velocity = useRef(0);       // 慣性用の速度
   const hovering = useRef(false);
   const raf = useRef(0);
   const halfWidth = useRef(0);
 
-  // halfWidth を計測
   const measureHalf = useCallback(() => {
     if (trackRef.current) {
       halfWidth.current = trackRef.current.scrollWidth / 2;
     }
   }, []);
 
-  // transform を適用
   const applyTransform = useCallback(() => {
     if (!trackRef.current) return;
-    // ループ: halfWidthを超えたら巻き戻す
     const hw = halfWidth.current;
     if (hw > 0) {
       offset.current = ((offset.current % hw) + hw) % hw;
@@ -34,17 +32,30 @@ function ScrollTrack({ children, speed = 0.5 }: {
     trackRef.current.style.transform = `translateX(-${offset.current}px)`;
   }, []);
 
-  // 自動スクロール
+  // メインループ: 自動スクロール + 慣性処理を統合
   useEffect(() => {
     measureHalf();
     let running = true;
 
     const tick = () => {
       if (!running) return;
-      if (!hovering.current) {
+
+      if (hovering.current) {
+        // ホバー中: 慣性を減衰させながら適用
+        if (Math.abs(velocity.current) > 0.1) {
+          offset.current += velocity.current;
+          velocity.current *= 0.92; // 減衰係数（滑らかさ調整）
+          applyTransform();
+        } else {
+          velocity.current = 0;
+        }
+      } else {
+        // 自動スクロール
+        velocity.current = 0;
         offset.current += speed;
         applyTransform();
       }
+
       raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
@@ -63,10 +74,16 @@ function ScrollTrack({ children, speed = 0.5 }: {
   }, [measureHalf]);
 
   // ホバー検知
-  const onEnter = useCallback(() => { hovering.current = true; }, []);
-  const onLeave = useCallback(() => { hovering.current = false; }, []);
+  const onEnter = useCallback(() => {
+    hovering.current = true;
+    velocity.current = 0;
+  }, []);
+  const onLeave = useCallback(() => {
+    hovering.current = false;
+    velocity.current = 0;
+  }, []);
 
-  // ホイール・トラックパッド → offset操作
+  // ホイール・トラックパッド → velocity に加算（滑らか）
   useEffect(() => {
     const container = trackRef.current?.parentElement;
     if (!container) return;
@@ -77,22 +94,20 @@ function ScrollTrack({ children, speed = 0.5 }: {
       const absX = Math.abs(e.deltaX);
       const absY = Math.abs(e.deltaY);
 
-      // 横スワイプ: deltaXが支配的 → 横スクロールに使う
-      if (absX > absY && absX > 2) {
+      if (absX > absY && absX > 1) {
         e.preventDefault();
-        offset.current += e.deltaX;
-        applyTransform();
-        return;
+        // velocityに加算（連続スワイプで加速）
+        velocity.current += e.deltaX * 0.3;
+        // 速度制限
+        velocity.current = Math.max(-30, Math.min(30, velocity.current));
       }
-
-      // 縦スクロール: deltaYが支配的 → ページの縦スクロールに任せる（何もしない）
     };
 
     container.addEventListener('wheel', onWheel, { passive: false });
     return () => container.removeEventListener('wheel', onWheel);
-  }, [applyTransform]);
+  }, []);
 
-  // ドラッグ → offset操作
+  // ドラッグ → offset直接操作
   useEffect(() => {
     const container = trackRef.current?.parentElement;
     if (!container) return;
@@ -100,17 +115,29 @@ function ScrollTrack({ children, speed = 0.5 }: {
     let dragging = false;
     let startX = 0;
     let startOffset = 0;
+    let lastX = 0;
+    let lastTime = 0;
 
     const onDown = (e: MouseEvent) => {
       if (!hovering.current) return;
       dragging = true;
       startX = e.pageX;
+      lastX = e.pageX;
+      lastTime = Date.now();
       startOffset = offset.current;
+      velocity.current = 0;
       container.style.cursor = 'grabbing';
     };
     const onMove = (e: MouseEvent) => {
       if (!dragging) return;
       e.preventDefault();
+      const now = Date.now();
+      const dt = now - lastTime;
+      if (dt > 0) {
+        velocity.current = (lastX - e.pageX) / dt * 16; // px/frame
+      }
+      lastX = e.pageX;
+      lastTime = now;
       offset.current = startOffset - (e.pageX - startX);
       applyTransform();
     };
@@ -118,6 +145,7 @@ function ScrollTrack({ children, speed = 0.5 }: {
       if (!dragging) return;
       dragging = false;
       container.style.cursor = '';
+      // velocityはtickループ内で減衰処理
     };
 
     container.addEventListener('mousedown', onDown);
@@ -130,33 +158,43 @@ function ScrollTrack({ children, speed = 0.5 }: {
     };
   }, [applyTransform]);
 
-  // タッチ横スワイプ
+  // タッチ横スワイプ（慣性付き）
   useEffect(() => {
     const container = trackRef.current?.parentElement;
     if (!container) return;
 
     let touchStartX = 0;
     let touchStartOffset = 0;
-    let isSwiping = false;
+    let lastTouchX = 0;
+    let lastTouchTime = 0;
 
     const onTouchStart = (e: TouchEvent) => {
       touchStartX = e.touches[0].clientX;
+      lastTouchX = touchStartX;
+      lastTouchTime = Date.now();
       touchStartOffset = offset.current;
-      isSwiping = false;
+      velocity.current = 0;
       hovering.current = true;
     };
     const onTouchMove = (e: TouchEvent) => {
-      const dx = e.touches[0].clientX - touchStartX;
-      if (Math.abs(dx) > 10) {
-        isSwiping = true;
+      const x = e.touches[0].clientX;
+      const dx = x - touchStartX;
+      if (Math.abs(dx) > 5) {
         e.preventDefault();
+        const now = Date.now();
+        const dt = now - lastTouchTime;
+        if (dt > 0) {
+          velocity.current = (lastTouchX - x) / dt * 16;
+        }
+        lastTouchX = x;
+        lastTouchTime = now;
         offset.current = touchStartOffset - dx;
         applyTransform();
       }
     };
     const onTouchEnd = () => {
       hovering.current = false;
-      isSwiping = false;
+      // velocityはtickで減衰 → 0になったら自動スクロール再開
     };
 
     container.addEventListener('touchstart', onTouchStart, { passive: true });
