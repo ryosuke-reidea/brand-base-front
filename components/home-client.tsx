@@ -184,7 +184,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
     };
   }, [total, goTo]);
 
-  // ホイール（横方向）
+  // ホイール（横方向 + 縦方向どちらでもスライド切替）
   useEffect(() => {
     const el = containerRef.current;
     if (!el || total === 0) return;
@@ -195,16 +195,18 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
     const onWheel = (e: WheelEvent) => {
       const absX = Math.abs(e.deltaX);
       const absY = Math.abs(e.deltaY);
-      if (absX > absY && absX > 5) {
+      // 横スワイプ or 縦ホイール（通常マウス）どちらでも反応
+      const delta = absX >= absY ? e.deltaX : e.deltaY;
+      if (Math.abs(delta) > 3) {
         e.preventDefault();
-        accumulated += e.deltaX;
+        accumulated += delta;
         if (wheelTimeout) clearTimeout(wheelTimeout);
         wheelTimeout = setTimeout(() => {
           if (Math.abs(accumulated) > 30) {
             goTo(accumulated > 0 ? 1 : -1);
           }
           accumulated = 0;
-        }, 100);
+        }, 150);
       }
     };
 
