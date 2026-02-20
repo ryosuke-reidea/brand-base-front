@@ -8,7 +8,7 @@ import { AutoScrollCarousel, ProductScrollCarousel, IdeaScrollCarousel } from '@
 import { formatJPY } from '@/lib/utils';
 import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
 import { SiteSettings } from '@/lib/db-queries';
 import { AvatarGenerator } from '@/components/avatar-generator';
@@ -67,17 +67,162 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   const [active, setActive] = useState(0);
   const items = products.slice(0, 7);
   const total = items.length;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const interacting = useRef(false);
+
+  // 自動再生の開始/停止
+  const startAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    autoPlayRef.current = setInterval(() => {
+      if (!interacting.current) {
+        setActive((p) => (p + 1) % total);
+      }
+    }, 3500);
+  }, [total]);
+
+  const stopAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+  }, []);
+
+  // インデックスを安全に変更
+  const goTo = useCallback((dir: number) => {
+    setActive((p) => ((p + dir) % total + total) % total);
+    // 操作後に自動再生を再スタート
+    stopAutoPlay();
+    startAutoPlay();
+  }, [total, stopAutoPlay, startAutoPlay]);
 
   useEffect(() => {
     if (total === 0) return;
-    const id = setInterval(() => setActive((p) => (p + 1) % total), 3500);
-    return () => clearInterval(id);
-  }, [total]);
+    startAutoPlay();
+    return () => stopAutoPlay();
+  }, [total, startAutoPlay, stopAutoPlay]);
+
+  // タッチスワイプ
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || total === 0) return;
+
+    let startX = 0;
+    let startY = 0;
+    let moved = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      moved = false;
+      interacting.current = true;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      // 横方向のスワイプを検知したらスクロール防止
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+        e.preventDefault();
+        moved = true;
+      }
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      interacting.current = false;
+      if (!moved) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 30) {
+        goTo(dx < 0 ? 1 : -1);
+      }
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [total, goTo]);
+
+  // マウスドラッグ
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || total === 0) return;
+
+    let dragging = false;
+    let startX = 0;
+
+    const onDown = (e: MouseEvent) => {
+      dragging = true;
+      startX = e.clientX;
+      interacting.current = true;
+      el.style.cursor = 'grabbing';
+    };
+    const onMove = (e: MouseEvent) => {
+      if (!dragging) return;
+      e.preventDefault();
+    };
+    const onUp = (e: MouseEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      interacting.current = false;
+      el.style.cursor = '';
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 30) {
+        goTo(dx < 0 ? 1 : -1);
+      }
+    };
+
+    el.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      el.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [total, goTo]);
+
+  // ホイール（横方向）
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || total === 0) return;
+
+    let wheelTimeout: ReturnType<typeof setTimeout> | null = null;
+    let accumulated = 0;
+
+    const onWheel = (e: WheelEvent) => {
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+      if (absX > absY && absX > 5) {
+        e.preventDefault();
+        accumulated += e.deltaX;
+        if (wheelTimeout) clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => {
+          if (Math.abs(accumulated) > 30) {
+            goTo(accumulated > 0 ? 1 : -1);
+          }
+          accumulated = 0;
+        }, 100);
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      if (wheelTimeout) clearTimeout(wheelTimeout);
+    };
+  }, [total, goTo]);
 
   if (total === 0) return null;
 
   return (
-    <div className="relative w-full h-[250px] md:h-[320px] overflow-hidden" style={{ perspective: '1200px' }}>
+    <div
+      ref={containerRef}
+      className="relative w-full h-[250px] md:h-[320px] overflow-hidden select-none cursor-grab"
+      style={{ perspective: '1200px' }}
+    >
       {items.map((product, i) => {
         const offset = ((i - active + total) % total) - Math.floor(total / 2);
         const absOffset = Math.abs(offset);
@@ -86,7 +231,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
         return (
           <motion.div
             key={product.slug}
-            className="absolute top-1/2 left-1/2 cursor-pointer will-change-transform"
+            className="absolute top-1/2 left-1/2 will-change-transform"
             animate={{
               x: `calc(-50% + ${offset * 160}px)`,
               y: '-50%',
@@ -97,12 +242,12 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
             }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             style={{ transformStyle: 'preserve-3d', zIndex: total - absOffset }}
-            onClick={() => setActive(i)}
+            onClick={() => { setActive(i); stopAutoPlay(); startAutoPlay(); }}
           >
-            <div className={`w-[190px] md:w-[250px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 ${isCenter ? 'border-purple-400 shadow-purple-300/30' : 'border-white/60 shadow-gray-200/20'}`}>
+            <div className={`w-[190px] md:w-[250px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 pointer-events-none ${isCenter ? 'border-purple-400 shadow-purple-300/30' : 'border-white/60 shadow-gray-200/20'}`}>
               <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
                 {product.image_url ? (
-                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" loading="lazy" />
+                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" loading="lazy" draggable={false} />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <Package className="w-9 h-9 text-purple-300" />
