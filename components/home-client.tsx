@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,12 +65,14 @@ function CountUpAnimation({ end, duration = 1 }: { end: number; duration?: numbe
 
 // ── 3D プロダクトカルーセル ──────────────────────────────────────────
 function Hero3DCarousel({ products }: { products: Product[] }) {
+  const router = useRouter();
   const [active, setActive] = useState(0);
   const items = products.slice(0, 7);
   const total = items.length;
   const containerRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const interacting = useRef(false);
+  const dragged = useRef(false);
 
   // 自動再生の開始/停止
   const startAutoPlay = useCallback(() => {
@@ -115,6 +118,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       moved = false;
+      dragged.current = false;
       interacting.current = true;
     };
     const onTouchMove = (e: TouchEvent) => {
@@ -124,6 +128,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
         e.preventDefault();
         moved = true;
+        dragged.current = true;
       }
     };
     const onTouchEnd = (e: TouchEvent) => {
@@ -156,12 +161,16 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
     const onDown = (e: MouseEvent) => {
       dragging = true;
       startX = e.clientX;
+      dragged.current = false;
       interacting.current = true;
       el.style.cursor = 'grabbing';
     };
     const onMove = (e: MouseEvent) => {
       if (!dragging) return;
       e.preventDefault();
+      if (Math.abs(e.clientX - startX) > 5) {
+        dragged.current = true;
+      }
     };
     const onUp = (e: MouseEvent) => {
       if (!dragging) return;
@@ -170,6 +179,7 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
       el.style.cursor = '';
       const dx = e.clientX - startX;
       if (Math.abs(dx) > 30) {
+        dragged.current = true;
         goTo(dx < 0 ? 1 : -1);
       }
     };
@@ -244,9 +254,18 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
             }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             style={{ transformStyle: 'preserve-3d', zIndex: total - absOffset }}
-            onClick={() => { setActive(i); stopAutoPlay(); startAutoPlay(); }}
+            onClick={() => {
+              if (dragged.current) return;
+              if (isCenter) {
+                router.push(`/products/${product.slug}`);
+              } else {
+                setActive(i);
+                stopAutoPlay();
+                startAutoPlay();
+              }
+            }}
           >
-            <div className={`w-[190px] md:w-[250px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 pointer-events-none ${isCenter ? 'border-purple-400 shadow-purple-300/30' : 'border-white/60 shadow-gray-200/20'}`}>
+            <div className={`w-[190px] md:w-[250px] rounded-2xl overflow-hidden border-2 shadow-xl transition-colors duration-300 pointer-events-none ${isCenter ? 'border-purple-400 shadow-purple-300/30 cursor-pointer' : 'border-white/60 shadow-gray-200/20'}`}>
               <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" loading="lazy" draggable={false} />
