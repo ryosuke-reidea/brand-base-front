@@ -703,7 +703,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
               </Badge>
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
                 <span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-                  BRAND BASEの仕組み
+                  BRAND-BASEの仕組み
                 </span>
               </h2>
               <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
@@ -717,8 +717,8 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
                 {/* 左サイドステップ（PC） */}
                 <div className="hidden lg:flex flex-col gap-5 w-48 shrink-0">
                   {[
-                    { step: '01', title: 'BRAND BASEへ応募', desc: 'フォームからアイデアを送信', color: 'from-purple-500 to-violet-500' },
-                    { step: '02', title: '運営が審査', desc: '専門チームが可能性を評価', color: 'from-pink-500 to-rose-500' },
+                    { step: '01', title: 'BRAND-BASEへ応募', desc: 'フォームからアイデアを送信', color: 'from-purple-500 to-violet-500' },
+                    { step: '02', title: 'BRAND-BASEが審査', desc: '専門チームが可能性を評価', color: 'from-pink-500 to-rose-500' },
                     { step: '03', title: '最適な商品割り当て', desc: 'あなたに合った商品を提案', color: 'from-fuchsia-500 to-purple-500' },
                   ].map((item) => (
                     <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100/40 shadow-md shadow-purple-100/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
