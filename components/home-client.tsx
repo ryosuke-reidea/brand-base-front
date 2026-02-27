@@ -793,7 +793,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
               variants={fadeInUp}
             >
               <div>
-                <h2 className="text-5xl font-bold text-gray-900 mb-3 tracking-tight">参加クリエイター</h2>
+                <h2 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight"><span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">参加クリエイター</span></h2>
                 <p className="text-gray-600 text-lg">実績あるクリエイターたちとともに</p>
               </div>
               <Link href="/creators" className="text-gray-900 hover:text-purple-600 flex items-center text-sm font-semibold group transition-colors duration-300">
@@ -891,7 +891,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
               variants={fadeInUp}
             >
               <div>
-                <h2 className="text-5xl font-bold text-gray-900 mb-3 tracking-tight">注目商品</h2>
+                <h2 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight"><span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">注目商品</span></h2>
                 <p className="text-gray-600 text-lg">成功事例をご覧ください</p>
               </div>
               <Link href="/products" className="text-gray-900 hover:text-purple-600 flex items-center text-sm font-semibold group transition-colors duration-300">
@@ -921,7 +921,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
               variants={fadeInUp}
             >
               <div>
-                <h2 className="text-5xl font-bold text-gray-900 mb-3 tracking-tight">応募されたIDEA</h2>
+                <h2 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight"><span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">応募されたIDEA</span></h2>
                 <p className="text-gray-600 text-lg">みんなのアイデアをチェック</p>
               </div>
               <Link href="/ideas" className="text-gray-900 hover:text-blue-600 flex items-center text-sm font-semibold group transition-colors duration-300">
@@ -941,7 +941,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
         <div className="container mx-auto px-4 relative z-10">
           <motion.div {...fadeIn}>
             <div className="flex items-center justify-between mb-10">
-              <h2 className="text-4xl font-bold text-gray-900 tracking-tight">ランキング</h2>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight"><span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">ランキング</span></h2>
               <Link href="/ranking" className="text-gray-900 hover:text-purple-600 flex items-center text-sm font-semibold group transition-colors duration-300">
                 ランキングを見る
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
@@ -1042,7 +1042,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
         <div className="container mx-auto px-4 relative z-10">
           <motion.div {...fadeIn}>
             <div className="text-center mb-16">
-              <h2 className="text-5xl font-bold text-gray-900 mb-5 tracking-tight">仕組み</h2>
+              <h2 className="text-3xl md:text-5xl font-bold mb-5 tracking-tight"><span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">仕組み</span></h2>
               <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
                 2つのフェーズで、あなたのアイデアを事業として成立させます
               </p>
