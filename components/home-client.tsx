@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoScrollCarousel, ProductScrollCarousel, IdeaScrollCarousel } from '@/components/auto-scroll-carousel';
 import { formatJPY } from '@/lib/utils';
-import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2, Play } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
@@ -294,6 +294,86 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
   );
 }
 
+// ── サービス紹介動画プレイヤー ──────────────────────────────────────
+function ServiceVideoPlayer() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+
+  const togglePlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+      // 再生後2秒でコントロール非表示
+      setTimeout(() => setShowControls(false), 2000);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+      setShowControls(true);
+    }
+  }, []);
+
+  return (
+    <div
+      className="relative group rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shadow-purple-200/40 border border-purple-100/50 bg-black cursor-pointer"
+      onClick={togglePlay}
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => isPlaying && setShowControls(false)}
+    >
+      {/* アスペクト比維持 */}
+      <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+        <video
+          ref={videoRef}
+          src="/service-intro.mp4"
+          className="w-full h-full object-cover"
+          playsInline
+          preload="metadata"
+          onEnded={() => { setIsPlaying(false); setShowControls(true); }}
+        />
+
+        {/* 再生/一時停止オーバーレイ */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+            showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {/* 背景オーバーレイ（未再生 or 一時停止時のみ） */}
+          {!isPlaying && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10" />
+          )}
+
+          {/* 再生ボタン */}
+          <div
+            className={`relative z-10 flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full transition-all duration-300 ${
+              isPlaying
+                ? 'bg-black/40 backdrop-blur-sm scale-90 opacity-80'
+                : 'bg-gradient-to-br from-purple-600 to-pink-500 shadow-xl shadow-purple-500/40 hover:scale-110'
+            }`}
+          >
+            {isPlaying ? (
+              <div className="flex gap-1.5">
+                <div className="w-1.5 md:w-2 h-6 md:h-7 bg-white rounded-full" />
+                <div className="w-1.5 md:w-2 h-6 md:h-7 bg-white rounded-full" />
+              </div>
+            ) : (
+              <Play className="w-7 h-7 md:w-8 md:h-8 text-white ml-1" fill="white" />
+            )}
+          </div>
+
+          {/* 未再生時のラベル */}
+          {!isPlaying && (
+            <p className="absolute bottom-6 md:bottom-8 left-0 right-0 text-center text-white/90 text-xs md:text-sm font-medium tracking-wide z-10">
+              クリックして動画を再生
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ──────────────────────────────────────────────────────────────────────
 
 interface HomeClientProps {
@@ -432,6 +512,38 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
               <ChevronDown className="w-4 h-4" />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── サービス紹介動画セクション ──── */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/20 to-white" />
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="max-w-4xl mx-auto"
+          >
+            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-12">
+              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium mb-5 inline-block">
+                サービス紹介
+              </Badge>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                <span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
+                  BRAND BASEの仕組み
+                </span>
+              </h2>
+              <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
+                アイデア応募からブランド立ち上げまでの流れを動画でご紹介します
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <ServiceVideoPlayer />
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
