@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoScrollCarousel, ProductScrollCarousel, IdeaScrollCarousel } from '@/components/auto-scroll-carousel';
 import { formatJPY } from '@/lib/utils';
-import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2, Play } from 'lucide-react';
+import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
@@ -297,77 +297,194 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
 // ── サービス紹介動画プレイヤー ──────────────────────────────────────
 function ServiceVideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showControls, setShowControls] = useState(true);
+  const seekBarRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showControls, setShowControls] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 時間フォーマット (mm:ss)
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  // コントロール表示/非表示タイマー
+  const showControlsTemporarily = useCallback(() => {
+    setShowControls(true);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      if (videoRef.current && !videoRef.current.paused) {
+        setShowControls(false);
+      }
+    }, 2500);
+  }, []);
+
+  // 再生/一時停止
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
       video.play();
       setIsPlaying(true);
-      // 再生後2秒でコントロール非表示
-      setTimeout(() => setShowControls(false), 2000);
+      showControlsTemporarily();
     } else {
       video.pause();
       setIsPlaying(false);
       setShowControls(true);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     }
+  }, [showControlsTemporarily]);
+
+  // ミュート切替
+  const toggleMute = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
   }, []);
+
+  // シークバー操作
+  const handleSeek = useCallback((clientX: number) => {
+    const bar = seekBarRef.current;
+    const video = videoRef.current;
+    if (!bar || !video) return;
+    const rect = bar.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    video.currentTime = ratio * video.duration;
+    setProgress(ratio * 100);
+    setCurrentTime(video.currentTime);
+  }, []);
+
+  const onSeekStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    setIsSeeking(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    handleSeek(clientX);
+  }, [handleSeek]);
+
+  useEffect(() => {
+    if (!isSeeking) return;
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      handleSeek(clientX);
+    };
+    const onUp = () => setIsSeeking(false);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove);
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  }, [isSeeking, handleSeek]);
+
+  // 再生時刻更新
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onTimeUpdate = () => {
+      if (!isSeeking && video.duration) {
+        setProgress((video.currentTime / video.duration) * 100);
+        setCurrentTime(video.currentTime);
+      }
+    };
+    const onLoaded = () => setDuration(video.duration);
+    const onEnded = () => { setIsPlaying(false); setShowControls(true); };
+    video.addEventListener('timeupdate', onTimeUpdate);
+    video.addEventListener('loadedmetadata', onLoaded);
+    video.addEventListener('ended', onEnded);
+    return () => {
+      video.removeEventListener('timeupdate', onTimeUpdate);
+      video.removeEventListener('loadedmetadata', onLoaded);
+      video.removeEventListener('ended', onEnded);
+    };
+  }, [isSeeking]);
 
   return (
     <div
       className="relative group rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shadow-purple-200/40 border border-purple-100/50 bg-black cursor-pointer"
       onClick={togglePlay}
-      onMouseEnter={() => setShowControls(true)}
+      onMouseMove={showControlsTemporarily}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
-      {/* アスペクト比維持 */}
       <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
         <video
           ref={videoRef}
           src="/service-intro.mp4"
           className="w-full h-full object-cover"
           playsInline
-          preload="metadata"
-          onEnded={() => { setIsPlaying(false); setShowControls(true); }}
+          preload="auto"
+          autoPlay
+          muted
+          loop
         />
 
-        {/* 再生/一時停止オーバーレイ */}
+        {/* 中央再生/一時停止ボタン（非再生時のみ大きく表示） */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="relative flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 shadow-xl shadow-purple-500/40 hover:scale-110 transition-transform duration-300">
+              <Play className="w-7 h-7 md:w-8 md:h-8 text-white ml-1" fill="white" />
+            </div>
+          </div>
+        )}
+
+        {/* 下部コントロールバー */}
         <div
-          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+          className={`absolute bottom-0 left-0 right-0 z-20 transition-opacity duration-300 ${
             showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* 背景オーバーレイ（未再生 or 一時停止時のみ） */}
-          {!isPlaying && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10" />
-          )}
-
-          {/* 再生ボタン */}
-          <div
-            className={`relative z-10 flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full transition-all duration-300 ${
-              isPlaying
-                ? 'bg-black/40 backdrop-blur-sm scale-90 opacity-80'
-                : 'bg-gradient-to-br from-purple-600 to-pink-500 shadow-xl shadow-purple-500/40 hover:scale-110'
-            }`}
-          >
-            {isPlaying ? (
-              <div className="flex gap-1.5">
-                <div className="w-1.5 md:w-2 h-6 md:h-7 bg-white rounded-full" />
-                <div className="w-1.5 md:w-2 h-6 md:h-7 bg-white rounded-full" />
+          <div className="bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-10 pb-3 px-3 md:px-5">
+            {/* シークバー */}
+            <div
+              ref={seekBarRef}
+              className="relative h-5 flex items-center cursor-pointer group/seek mb-2"
+              onMouseDown={onSeekStart}
+              onTouchStart={onSeekStart}
+            >
+              <div className="absolute left-0 right-0 h-1 group-hover/seek:h-1.5 bg-white/30 rounded-full transition-all">
+                <div
+                  className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full relative"
+                  style={{ width: `${progress}%` }}
+                >
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 md:w-3.5 md:h-3.5 bg-white rounded-full shadow-md opacity-0 group-hover/seek:opacity-100 transition-opacity" />
+                </div>
               </div>
-            ) : (
-              <Play className="w-7 h-7 md:w-8 md:h-8 text-white ml-1" fill="white" />
-            )}
-          </div>
+            </div>
 
-          {/* 未再生時のラベル */}
-          {!isPlaying && (
-            <p className="absolute bottom-6 md:bottom-8 left-0 right-0 text-center text-white/90 text-xs md:text-sm font-medium tracking-wide z-10">
-              クリックして動画を再生
-            </p>
-          )}
+            {/* 再生ボタン・時間・ミュート */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+                  className="text-white/90 hover:text-white transition-colors"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4 md:w-5 md:h-5" fill="white" /> : <Play className="w-4 h-4 md:w-5 md:h-5" fill="white" />}
+                </button>
+                <span className="text-white/80 text-[10px] md:text-xs font-mono tabular-nums">
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
+              </div>
+              <button
+                onClick={toggleMute}
+                className="text-white/90 hover:text-white transition-colors"
+              >
+                {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -516,7 +633,7 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
       </section>
 
       {/* ── サービス紹介動画セクション ──── */}
-      <section className="py-16 md:py-24 relative overflow-hidden">
+      <section className="pt-2 pb-16 md:pt-4 md:pb-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/20 to-white" />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
