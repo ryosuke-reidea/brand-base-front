@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoScrollCarousel, ProductScrollCarousel, IdeaScrollCarousel } from '@/components/auto-scroll-carousel';
 import { formatJPY } from '@/lib/utils';
-import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { ArrowRight, TrendingUp, Package, Users, Target, ChevronDown, Lightbulb, CheckCircle2, Play, Pause, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Creator, Product, Rankings, IdeaProduct } from '@/types';
@@ -297,9 +297,11 @@ function Hero3DCarousel({ products }: { products: Product[] }) {
 // ── サービス紹介動画プレイヤー ──────────────────────────────────────
 function ServiceVideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const seekBarRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -348,6 +350,44 @@ function ServiceVideoPlayer() {
     if (!video) return;
     video.muted = !video.muted;
     setIsMuted(video.muted);
+  }, []);
+
+  // 全画面切替
+  const toggleFullscreen = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (!document.fullscreenElement) {
+      // iOS Safari対応: videoのwebkitEnterFullscreen、またはcontainerのrequestFullscreen
+      const video = videoRef.current;
+      if (video && typeof (video as any).webkitEnterFullscreen === 'function' && /iPhone|iPad/.test(navigator.userAgent)) {
+        (video as any).webkitEnterFullscreen();
+      } else if (container.requestFullscreen) {
+        await container.requestFullscreen();
+      } else if ((container as any).webkitRequestFullscreen) {
+        (container as any).webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
+    }
+  }, []);
+
+  // 全画面状態の検知
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement || !!(document as any).webkitFullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+    };
   }, []);
 
   // シークバー操作
@@ -412,16 +452,22 @@ function ServiceVideoPlayer() {
 
   return (
     <div
-      className="relative group rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shadow-purple-200/40 border border-purple-100/50 bg-black cursor-pointer"
+      ref={containerRef}
+      className={`relative group overflow-hidden bg-black cursor-pointer ${
+        isFullscreen
+          ? 'rounded-none border-none shadow-none flex items-center justify-center w-screen h-screen'
+          : 'rounded-2xl md:rounded-3xl shadow-2xl shadow-purple-200/40 border border-purple-100/50'
+      }`}
       onClick={togglePlay}
       onMouseMove={showControlsTemporarily}
+      onTouchStart={showControlsTemporarily}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
-      <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+      <div className={`relative w-full ${isFullscreen ? 'h-full' : ''}`} style={isFullscreen ? {} : { aspectRatio: '16/9' }}>
         <video
           ref={videoRef}
           src="/service-intro.mp4"
-          className="w-full h-full object-cover"
+          className={`w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
           playsInline
           preload="auto"
           autoPlay
@@ -477,12 +523,20 @@ function ServiceVideoPlayer() {
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
-              <button
-                onClick={toggleMute}
-                className="text-white/90 hover:text-white transition-colors"
-              >
-                {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={toggleMute}
+                  className="text-white/90 hover:text-white transition-colors"
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
+                </button>
+                <button
+                  onClick={toggleFullscreen}
+                  className="text-white/90 hover:text-white transition-colors"
+                >
+                  {isFullscreen ? <Minimize className="w-4 h-4 md:w-5 md:h-5" /> : <Maximize className="w-4 h-4 md:w-5 md:h-5" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
