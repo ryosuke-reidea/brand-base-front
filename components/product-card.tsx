@@ -3,7 +3,7 @@ import { Product } from '@/types';
 import { formatJPY, getStatusLabel, getStatusColor } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Package } from 'lucide-react';
 import { getCreatorBySlug } from '@/lib/data';
 
 interface ProductCardProps {
@@ -16,7 +16,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.slug}`}>
       <Card className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-100 hover:border-gray-200 transition-all duration-500 hover:shadow-2xl hover:shadow-gray-200/50 hover:-translate-y-1 h-full rounded-2xl">
-        <div className="aspect-video bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+        <div className="aspect-video bg-gradient-to-br from-purple-100 to-pink-50 relative overflow-hidden">
           {product.image_url ? (
             <img
               src={product.image_url}
@@ -24,10 +24,9 @@ export function ProductCard({ product }: ProductCardProps) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-gray-200 text-6xl font-bold">
-                {product.product_name.substring(0, 1)}
-              </div>
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+              <Package className="w-10 h-10 text-purple-300" />
+              <span className="text-purple-300 text-xs font-medium">{product.product_name}</span>
             </div>
           )}
           <div className="absolute top-4 right-4">

@@ -44,7 +44,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </Link>
 
         <div className="grid md:grid-cols-2 gap-12 mb-12">
-          <div className="aspect-video bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl overflow-hidden flex items-center justify-center shadow-xl shadow-purple-200/50">
+          <div className="aspect-video bg-gradient-to-br from-purple-100 to-pink-50 rounded-3xl overflow-hidden flex items-center justify-center shadow-xl shadow-purple-200/50">
             {product.image_url ? (
               <img
                 src={product.image_url}
@@ -52,8 +52,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="text-purple-200 text-9xl font-bold">
-                {product.product_name.substring(0, 1)}
+              <div className="flex flex-col items-center gap-3">
+                <Package className="w-16 h-16 text-purple-300" />
+                <span className="text-purple-400 text-lg font-semibold">{product.product_name}</span>
               </div>
             )}
           </div>
