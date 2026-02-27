@@ -635,15 +635,15 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
       {/* ── サービス紹介動画セクション ──── */}
       <section className="pt-2 pb-16 md:pt-4 md:pb-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/20 to-white" />
-        <div className="px-2 md:container md:mx-auto md:px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="max-w-6xl mx-auto"
+            className="max-w-7xl mx-auto"
           >
-            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-12 px-2">
+            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-12">
               <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium mb-5 inline-block">
                 サービス紹介
               </Badge>
@@ -657,8 +657,70 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
               </p>
             </motion.div>
 
+            {/* PC: 左ステップ ｜ 動画 ｜ 右ステップ / SP: 動画 → ステップ横並び */}
             <motion.div variants={fadeInUp}>
-              <ServiceVideoPlayer />
+              <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-5">
+                {/* 左サイドステップ（PC） */}
+                <div className="hidden lg:flex flex-col gap-5 w-48 shrink-0">
+                  {[
+                    { step: '01', title: 'アイデア応募', desc: 'フォームから簡単に応募', color: 'from-purple-500 to-violet-500' },
+                    { step: '02', title: '審査・面談', desc: '専門チームが丁寧に審査', color: 'from-pink-500 to-rose-500' },
+                    { step: '03', title: '商品開発', desc: '費用はすべて当社負担', color: 'from-fuchsia-500 to-purple-500' },
+                  ].map((item) => (
+                    <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100/40 shadow-md shadow-purple-100/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                      <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} mb-2 shadow-sm`}>
+                        <span className="text-white text-xs font-bold">{item.step}</span>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 動画プレイヤー */}
+                <div className="flex-1 w-full max-w-4xl">
+                  <ServiceVideoPlayer />
+                </div>
+
+                {/* 右サイドステップ（PC） */}
+                <div className="hidden lg:flex flex-col gap-5 w-48 shrink-0">
+                  {[
+                    { step: '04', title: 'クラファン開始', desc: 'プロが全面サポート', color: 'from-violet-500 to-indigo-500' },
+                    { step: '05', title: '販売・配送', desc: '物流もすべてお任せ', color: 'from-indigo-500 to-purple-500' },
+                    { step: '06', title: '収益化', desc: '売上の一部が報酬に', color: 'from-purple-600 to-pink-500' },
+                  ].map((item) => (
+                    <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100/40 shadow-md shadow-purple-100/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                      <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} mb-2 shadow-sm`}>
+                        <span className="text-white text-xs font-bold">{item.step}</span>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* SPではステップを横スクロール */}
+                <div className="lg:hidden w-full overflow-x-auto pb-2 -mx-1">
+                  <div className="flex gap-3 px-1 w-max">
+                    {[
+                      { step: '01', title: 'アイデア応募', desc: 'フォームから簡単に応募', color: 'from-purple-500 to-violet-500' },
+                      { step: '02', title: '審査・面談', desc: '専門チームが丁寧に審査', color: 'from-pink-500 to-rose-500' },
+                      { step: '03', title: '商品開発', desc: '費用はすべて当社負担', color: 'from-fuchsia-500 to-purple-500' },
+                      { step: '04', title: 'クラファン開始', desc: 'プロが全面サポート', color: 'from-violet-500 to-indigo-500' },
+                      { step: '05', title: '販売・配送', desc: '物流もすべてお任せ', color: 'from-indigo-500 to-purple-500' },
+                      { step: '06', title: '収益化', desc: '売上の一部が報酬に', color: 'from-purple-600 to-pink-500' },
+                    ].map((item) => (
+                      <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-purple-100/40 shadow-md shadow-purple-100/10 w-32 shrink-0">
+                        <div className={`inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br ${item.color} mb-1.5 shadow-sm`}>
+                          <span className="text-white text-[10px] font-bold">{item.step}</span>
+                        </div>
+                        <p className="text-xs font-semibold text-gray-800">{item.title}</p>
+                        <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         </div>
