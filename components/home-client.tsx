@@ -717,9 +717,9 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
                 {/* 左サイドステップ（PC） */}
                 <div className="hidden lg:flex flex-col gap-5 w-48 shrink-0">
                   {[
-                    { step: '01', title: 'アイデア応募', desc: 'フォームから簡単に応募', color: 'from-purple-500 to-violet-500' },
-                    { step: '02', title: '審査・面談', desc: '専門チームが丁寧に審査', color: 'from-pink-500 to-rose-500' },
-                    { step: '03', title: '商品開発', desc: '費用はすべて当社負担', color: 'from-fuchsia-500 to-purple-500' },
+                    { step: '01', title: '応募', desc: 'フォームからアイデアを送信', color: 'from-purple-500 to-violet-500' },
+                    { step: '02', title: '審査', desc: '専門チームが可能性を評価', color: 'from-pink-500 to-rose-500' },
+                    { step: '03', title: '最適な商品割り当て', desc: 'あなたに合った商品を提案', color: 'from-fuchsia-500 to-purple-500' },
                   ].map((item) => (
                     <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100/40 shadow-md shadow-purple-100/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                       <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} mb-2 shadow-sm`}>
@@ -739,9 +739,9 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
                 {/* 右サイドステップ（PC） */}
                 <div className="hidden lg:flex flex-col gap-5 w-48 shrink-0">
                   {[
-                    { step: '04', title: 'クラファン開始', desc: 'プロが全面サポート', color: 'from-violet-500 to-indigo-500' },
-                    { step: '05', title: '販売・配送', desc: '物流もすべてお任せ', color: 'from-indigo-500 to-purple-500' },
-                    { step: '06', title: '収益化', desc: '売上の一部が報酬に', color: 'from-purple-600 to-pink-500' },
+                    { step: '04', title: 'クラファン開始', desc: 'プロが企画から全面支援', color: 'from-violet-500 to-indigo-500' },
+                    { step: '05', title: '販売・配送', desc: '物流・CSもすべてお任せ', color: 'from-indigo-500 to-purple-500' },
+                    { step: '06', title: '収益化', desc: '売上の一部があなたの報酬に', color: 'from-purple-600 to-pink-500' },
                   ].map((item) => (
                     <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100/40 shadow-md shadow-purple-100/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                       <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} mb-2 shadow-sm`}>
@@ -757,12 +757,12 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
                 <div className="lg:hidden w-full overflow-x-auto pb-2 -mx-1">
                   <div className="flex gap-3 px-1 w-max">
                     {[
-                      { step: '01', title: 'アイデア応募', desc: 'フォームから簡単に応募', color: 'from-purple-500 to-violet-500' },
-                      { step: '02', title: '審査・面談', desc: '専門チームが丁寧に審査', color: 'from-pink-500 to-rose-500' },
-                      { step: '03', title: '商品開発', desc: '費用はすべて当社負担', color: 'from-fuchsia-500 to-purple-500' },
-                      { step: '04', title: 'クラファン開始', desc: 'プロが全面サポート', color: 'from-violet-500 to-indigo-500' },
-                      { step: '05', title: '販売・配送', desc: '物流もすべてお任せ', color: 'from-indigo-500 to-purple-500' },
-                      { step: '06', title: '収益化', desc: '売上の一部が報酬に', color: 'from-purple-600 to-pink-500' },
+                      { step: '01', title: '応募', desc: 'フォームからアイデアを送信', color: 'from-purple-500 to-violet-500' },
+                      { step: '02', title: '審査', desc: '専門チームが可能性を評価', color: 'from-pink-500 to-rose-500' },
+                      { step: '03', title: '最適な商品割り当て', desc: 'あなたに合った商品を提案', color: 'from-fuchsia-500 to-purple-500' },
+                      { step: '04', title: 'クラファン開始', desc: 'プロが企画から全面支援', color: 'from-violet-500 to-indigo-500' },
+                      { step: '05', title: '販売・配送', desc: '物流・CSもすべてお任せ', color: 'from-indigo-500 to-purple-500' },
+                      { step: '06', title: '収益化', desc: '売上の一部があなたの報酬に', color: 'from-purple-600 to-pink-500' },
                     ].map((item) => (
                       <div key={item.step} className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-purple-100/40 shadow-md shadow-purple-100/10 w-32 shrink-0">
                         <div className={`inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br ${item.color} mb-1.5 shadow-sm`}>
