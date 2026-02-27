@@ -635,15 +635,15 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
       {/* ── サービス紹介動画セクション ──── */}
       <section className="pt-2 pb-16 md:pt-4 md:pb-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/20 to-white" />
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="px-2 md:container md:mx-auto md:px-4 relative z-10">
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="max-w-4xl mx-auto"
+            className="max-w-6xl mx-auto"
           >
-            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-12">
+            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-12 px-2">
               <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium mb-5 inline-block">
                 サービス紹介
               </Badge>
