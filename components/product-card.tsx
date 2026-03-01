@@ -29,13 +29,11 @@ export function ProductCard({ product }: ProductCardProps) {
               <span className="text-purple-300 text-xs font-medium">{product.product_name}</span>
             </div>
           )}
-          {product.campaign_status && (
-            <div className="absolute top-4 right-4">
-              <Badge className={`${getStatusColor(product.campaign_status)} shadow-[0_4px_12px_rgba(0,0,0,0.4)] font-semibold text-sm px-4 py-1.5 ring-2 ring-white/50`}>
-                {getStatusLabel(product.campaign_status)}
-              </Badge>
-            </div>
-          )}
+          <div className="absolute top-4 right-4">
+            <Badge className={`${product.campaign_status ? getStatusColor(product.campaign_status) : 'bg-purple-500 text-white border-purple-600'} shadow-[0_4px_12px_rgba(0,0,0,0.4)] font-semibold text-sm px-4 py-1.5 ring-2 ring-white/50`}>
+              {product.campaign_status ? getStatusLabel(product.campaign_status) : '準備中'}
+            </Badge>
+          </div>
         </div>
 
         <div className="p-6">
