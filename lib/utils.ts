@@ -27,10 +27,10 @@ export function getStatusLabel(status: CampaignStatus): string {
 
 export function getStatusColor(status: CampaignStatus): string {
   const colors: Record<CampaignStatus, string> = {
-    live: 'bg-green-500 text-white border-green-600',
-    funded: 'bg-blue-500 text-white border-blue-600',
-    indemand: 'bg-amber-500 text-white border-amber-600',
-    archived: 'bg-gray-700 text-white border-gray-800',
+    live: '!bg-green-500 !text-white !border-green-600',
+    funded: '!bg-blue-500 !text-white !border-blue-600',
+    indemand: '!bg-amber-500 !text-white !border-amber-600',
+    archived: '!bg-gray-700 !text-white !border-gray-800',
   };
   return colors[status];
 }
