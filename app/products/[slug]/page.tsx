@@ -61,9 +61,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <Badge className={`${getStatusColor(product.campaign_status)} shadow-[0_4px_12px_rgba(0,0,0,0.4)] font-semibold text-sm px-4 py-1.5 ring-2 ring-white/50`}>
-                {getStatusLabel(product.campaign_status)}
-              </Badge>
+              {product.campaign_status && (
+                <Badge className={`${getStatusColor(product.campaign_status)} shadow-[0_4px_12px_rgba(0,0,0,0.4)] font-semibold text-sm px-4 py-1.5 ring-2 ring-white/50`}>
+                  {getStatusLabel(product.campaign_status)}
+                </Badge>
+              )}
               <Badge variant="outline" className="border-purple-300 text-purple-700 bg-purple-50">
                 {product.category}
               </Badge>
