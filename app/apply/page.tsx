@@ -295,7 +295,7 @@ export default function ApplyPage() {
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
               <Badge className="bg-gray-100 text-gray-700 border-gray-200 px-6 py-2 text-sm font-medium mb-6 shadow-sm">Apply Now</Badge>
             </motion.div>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-5 tracking-tight">簡単応募フォーム</h1>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-5 tracking-tight">簡単応募フォーム</h1>
             <p className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto leading-relaxed">
               まずは気軽にご連絡ください。アイデアの有無に関わらず、あなたのチャレンジを全力でサポートします。
             </p>
@@ -303,13 +303,13 @@ export default function ApplyPage() {
 
           {/* 0円カード */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
-            <Card className="bg-gradient-to-br from-green-50 via-white to-emerald-50/30 border-green-200 p-8 mb-12 shadow-lg hover:shadow-xl transition-shadow rounded-3xl relative overflow-hidden group">
+            <Card className="bg-gradient-to-br from-green-50 via-white to-emerald-50/30 border-green-200 p-5 sm:p-8 mb-12 shadow-lg hover:shadow-xl transition-shadow rounded-3xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-200/30 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-emerald-200/20 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-3 mb-5">
                   <Sparkles className="w-7 h-7 text-green-700" />
-                  <h2 className="text-2xl font-bold text-green-900 text-center">審査を通過すれば、0円で収益化可能</h2>
+                  <h2 className="text-lg sm:text-2xl font-bold text-green-900 text-center">審査を通過すれば、0円で収益化可能</h2>
                 </div>
                 <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
                   <div>
@@ -325,7 +325,7 @@ export default function ApplyPage() {
                   <div className="flex flex-col justify-center">
                     <div className="bg-gradient-to-br from-green-100 to-emerald-100 border-2 border-green-300 rounded-2xl p-6 shadow-md">
                       <p className="text-green-900 font-bold text-center mb-2 text-lg">あなたの金銭的負担</p>
-                      <p className="text-5xl font-bold text-green-900 text-center mb-2">¥0</p>
+                      <p className="text-4xl sm:text-5xl font-bold text-green-900 text-center mb-2">¥0</p>
                       <p className="text-green-800 text-xs text-center mt-3 leading-relaxed">その代わり、商品アイデアは厳正に審査させていただきます</p>
                     </div>
                   </div>
@@ -335,15 +335,15 @@ export default function ApplyPage() {
           </motion.div>
 
           <Tabs defaultValue="consult" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100 border-2 border-gray-200 mb-10 h-14 rounded-2xl p-1">
-              <TabsTrigger value="idea" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white rounded-xl font-semibold text-base transition-all">アイデアがある方</TabsTrigger>
-              <TabsTrigger value="consult" id="call" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white rounded-xl font-semibold text-base transition-all">アイデアがない方</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 border-2 border-gray-200 mb-10 h-12 sm:h-14 rounded-2xl p-1">
+              <TabsTrigger value="idea" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white rounded-xl font-semibold text-sm sm:text-base transition-all">アイデアがある方</TabsTrigger>
+              <TabsTrigger value="consult" id="call" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white rounded-xl font-semibold text-sm sm:text-base transition-all">アイデアがない方</TabsTrigger>
             </TabsList>
 
             {/* ─── アイデア応募タブ ─── */}
             <TabsContent value="idea">
-              <Card className="bg-white border-gray-200 p-8 shadow-lg rounded-2xl">
-                <h2 className="text-3xl font-bold text-gray-900 mb-3">アイデア応募フォーム</h2>
+              <Card className="bg-white border-gray-200 p-5 sm:p-8 shadow-lg rounded-2xl">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">アイデア応募フォーム</h2>
                 <p className="text-gray-600 mb-8 text-base">商品化したいアイデアがある方はこちら。簡単な情報だけでOKです！</p>
                 <form className="space-y-6" onSubmit={handleIdeaSubmit}>
                   <div className="grid md:grid-cols-2 gap-6">
@@ -428,8 +428,8 @@ export default function ApplyPage() {
 
             {/* ─── 相談タブ ─── */}
             <TabsContent value="consult">
-              <Card className="bg-white border-gray-200 p-8 shadow-lg rounded-2xl">
-                <h2 className="text-3xl font-bold text-gray-900 mb-3">まずは相談から</h2>
+              <Card className="bg-white border-gray-200 p-5 sm:p-8 shadow-lg rounded-2xl">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">まずは相談から</h2>
                 <p className="text-gray-600 mb-4 text-base">アイデアがなくても大丈夫！当社から商品を割り当てて進めることも可能です。</p>
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50/30 border-2 border-blue-200 rounded-2xl p-6 mb-8 shadow-sm">
                   <div className="flex items-start gap-4">

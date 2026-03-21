@@ -68,19 +68,19 @@ export default function ServicePage() {
           <Badge className="bg-gray-100 text-gray-700 border-gray-200 px-6 py-2 text-sm font-medium mb-6 shadow-sm">
             How It Works
           </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">仕組み</h1>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">仕組み</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             在庫ゼロから始める、新しいブランド作り
           </p>
         </motion.div>
 
         <motion.div {...fadeInUp}>
-          <Card className="bg-gradient-to-br from-blue-50 via-white to-indigo-50/30 border-gray-200 p-10 mb-20 text-center shadow-lg hover:shadow-xl transition-shadow rounded-3xl relative overflow-hidden group">
+          <Card className="bg-gradient-to-br from-blue-50 via-white to-indigo-50/30 border-gray-200 p-6 sm:p-10 mb-20 text-center shadow-lg hover:shadow-xl transition-shadow rounded-3xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-200/30 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-indigo-200/30 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
             <div className="relative z-10">
               <Sparkles className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4">
                 アイデアの成形から継続販売まで、<br />トータルサポート
               </h2>
               <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto text-lg">
@@ -93,7 +93,7 @@ export default function ServicePage() {
         </motion.div>
 
         <motion.div className="mb-20" {...fadeInUp}>
-          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center tracking-tight">2つのフェーズ</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-12 text-center tracking-tight">2つのフェーズ</h2>
           <motion.div className="grid md:grid-cols-2 gap-8" variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true }}>
             <motion.div variants={fadeInUp}>
               <Card className="bg-white border-gray-200 p-8 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1 rounded-2xl h-full">
@@ -195,8 +195,8 @@ export default function ServicePage() {
         </motion.div>
 
         <motion.div className="mb-20" {...fadeInUp}>
-          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center tracking-tight">審査基準</h2>
-          <Card className="bg-white border-gray-200 p-10 shadow-lg rounded-2xl">
+          <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-12 text-center tracking-tight">審査基準</h2>
+          <Card className="bg-white border-gray-200 p-5 sm:p-10 shadow-lg rounded-2xl">
             <motion.div className="grid md:grid-cols-3 gap-10" variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true }}>
               {[
                 { icon: Rocket, title: '海外で売れる可能性', desc: 'グローバル市場での需要があり、ユニークな価値提案ができること。特に英語圏での市場性を重視します。', color: 'from-blue-100 to-indigo-100' },
@@ -222,7 +222,7 @@ export default function ServicePage() {
         </motion.div>
 
         <motion.div className="mb-20" {...fadeInUp}>
-          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center tracking-tight">こんな方におすすめ</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-12 text-center tracking-tight">こんな方におすすめ</h2>
           <motion.div className="grid md:grid-cols-2 gap-6" variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true }}>
             {[
               { icon: Package, title: 'アイデアがなくても始められる', desc: '当社が企画した商品を割り当て、あなたのブランドとして販売できます。商品企画から参加可能です', featured: true },
@@ -251,7 +251,7 @@ export default function ServicePage() {
         </motion.div>
 
         <motion.div {...fadeInUp}>
-          <Card className="bg-white border-gray-200 p-8 mb-16 shadow-lg rounded-2xl">
+          <Card className="bg-white border-gray-200 p-5 sm:p-8 mb-16 shadow-lg rounded-2xl">
             <div className="flex items-start gap-4">
               <AlertCircle className="w-7 h-7 text-amber-600 flex-shrink-0 mt-1" />
               <div>
@@ -283,10 +283,10 @@ export default function ServicePage() {
         </motion.div>
 
         <motion.div {...fadeInUp}>
-          <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 p-12 text-center shadow-2xl rounded-3xl relative overflow-hidden group">
+          <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 p-6 sm:p-12 text-center shadow-2xl rounded-3xl relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative z-10">
-              <h2 className="text-4xl font-bold text-white mb-5">
+              <h2 className="text-2xl sm:text-4xl font-bold text-white mb-5">
                 まずはアイデアを<br />聞かせてください
               </h2>
               <p className="text-gray-300 mb-10 max-w-xl mx-auto text-lg leading-relaxed">
