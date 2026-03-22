@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/sonner';
+import { MetaPixel } from '@/components/meta-pixel';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
+        <MetaPixel />
         <Header />
         <main className="min-h-screen">
           {children}

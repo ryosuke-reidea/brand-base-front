@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { Send, Loader2, Lightbulb, CheckCircle2, Sparkles, ImagePlus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackMetaEvent } from '@/lib/meta-tracking';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -224,6 +225,9 @@ export default function ApplyPage() {
         imageUrl: uploadedImagePath || null,
       });
 
+      // Meta Lead イベント送信（ピクセル + CAPI）
+      trackMetaEvent({ eventName: 'Lead', email: ideaForm.email });
+
       toast.success('応募を受け付けました！', {
         description: '3営業日以内に担当者よりご連絡いたします。',
       });
@@ -269,6 +273,9 @@ export default function ApplyPage() {
         phone: consultForm.phone || null,
         inquiry: consultForm.inquiry,
       });
+
+      // Meta Contact イベント送信（ピクセル + CAPI）
+      trackMetaEvent({ eventName: 'Contact', email: consultForm.email });
 
       toast.success('相談を受け付けました！', {
         description: '2営業日以内に担当者よりご連絡いたします。',
