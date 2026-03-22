@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: 'BRAND-BASE - 在庫ゼロで、ブランドを走らせる',
   description: 'アイデアの成形からクラウドファンディングでの検証、継続販売まで。スモールブランドを"事業として成立"させます。',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  verification: {
+    other: {
+      'facebook-domain-verification': 'koj5gtog4qijmotkkkyopkxvpst1rd',
+    },
+  },
   icons: {
     icon: [
       { url: '/icon.png', type: 'image/png' },
