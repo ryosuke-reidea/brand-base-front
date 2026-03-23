@@ -18,11 +18,10 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const creators = await getAllCreators();
-  return creators.map((creator) => ({
-    slug: creator.slug,
-  }));
+  return [];
 }
+
+export const dynamicParams = true;
 
 export default async function CreatorDetailPage({ params }: PageProps) {
   const creator = await getCreatorBySlug(params.slug);

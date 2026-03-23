@@ -63,6 +63,26 @@ function CountUpAnimation({ end, duration = 1 }: { end: number; duration?: numbe
   return <span ref={ref}>{count.toLocaleString()}</span>;
 }
 
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-5 md:p-6 text-left hover:bg-gray-50/50 transition-colors"
+      >
+        <span className="text-sm md:text-base font-semibold text-gray-900 pr-4">{question}</span>
+        <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="px-5 md:px-6 pb-5 md:pb-6">
+          <p className="text-sm text-gray-600 leading-relaxed">{answer}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── 3D プロダクトカルーセル ──────────────────────────────────────────
 function Hero3DCarousel({ products }: { products: Product[] }) {
   const router = useRouter();
@@ -686,6 +706,119 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
         </div>
       </section>
 
+      {/* ── 成功事例セクション ──── */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/30 to-white" />
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="max-w-5xl mx-auto"
+          >
+            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-14">
+              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium mb-5 inline-block">
+                成功事例
+              </Badge>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                <span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
+                  初プロジェクトで930万円達成
+                </span>
+              </h2>
+              <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
+                BRAND-BASE第1号プロジェクト「KNIGHT FANG」の実績をご紹介します
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              {/* メイン実績カード */}
+              <div className="bg-white rounded-3xl border border-purple-100/60 shadow-xl shadow-purple-100/20 overflow-hidden mb-8">
+                <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 p-6 md:p-8 text-white">
+                  <p className="text-sm font-medium opacity-90 mb-1">BRAND-BASE 第1号プロジェクト</p>
+                  <h3 className="text-2xl md:text-3xl font-bold">KNIGHT FANG Titanium Knife</h3>
+                  <p className="text-sm opacity-80 mt-1">Kickstarterにて資金調達に成功</p>
+                </div>
+                <div className="p-6 md:p-8">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    {[
+                      { label: '達成額', value: '930', suffix: '万円', color: 'from-purple-500 to-pink-500' },
+                      { label: '達成率', value: '3,109', suffix: '%', color: 'from-pink-500 to-rose-500' },
+                      { label: 'バッカー数', value: '613', suffix: '人', color: 'from-violet-500 to-purple-500' },
+                      { label: '目標比', value: '31', suffix: '倍', color: 'from-fuchsia-500 to-pink-500' },
+                    ].map((stat) => (
+                      <div key={stat.label} className="text-center">
+                        <div className={`text-3xl md:text-4xl font-bold bg-gradient-to-br ${stat.color} bg-clip-text text-transparent`}>
+                          {stat.value}<span className="text-lg md:text-xl">{stat.suffix}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* クリエイター収入の具体例 */}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-5 md:p-6 border border-purple-100/40">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-purple-900 mb-1">クリエイターの収入例</p>
+                        <p className="text-xs text-gray-600">このプロジェクトでクリエイターが得た報酬</p>
+                      </div>
+                      <div className="text-center md:text-right">
+                        <p className="text-xs text-gray-500 mb-0.5">費用負担ゼロで</p>
+                        <p className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                          ¥651,000
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">の副収入を獲得</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3つのポイント */}
+              <div className="grid md:grid-cols-3 gap-4">
+                {[
+                  {
+                    icon: '💰',
+                    title: '費用は全額当社が負担',
+                    desc: '商品開発・製造・広告・配送まで全ての費用をBRAND-BASEが負担。あなたの金銭的リスクはゼロです。',
+                  },
+                  {
+                    icon: '🤖',
+                    title: 'AIに奪われない副業',
+                    desc: 'AI時代に事務系・外注系の仕事は淘汰されます。自分のブランドとファンを持つことが、これからの時代の副業です。',
+                  },
+                  {
+                    icon: '🚀',
+                    title: '未経験でもブランドオーナーに',
+                    desc: '商品もスキルも不要。あなたはブランドの「顔」になるだけ。企画から運営まで全てプロがサポートします。',
+                  },
+                ].map((point) => (
+                  <div key={point.title} className="bg-white rounded-2xl p-5 border border-purple-100/40 shadow-md shadow-purple-100/10">
+                    <span className="text-2xl mb-3 block">{point.icon}</span>
+                    <h4 className="text-sm font-bold text-gray-900 mb-2">{point.title}</h4>
+                    <p className="text-xs text-gray-500 leading-relaxed">{point.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div className="text-center mt-10">
+                <Link href="/apply">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm px-12 py-6 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
+                  >
+                    次のブランドオーナーになる
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ── サービス紹介動画セクション ──── */}
       <section className="pt-2 pb-16 md:pt-4 md:pb-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/20 to-white" />
@@ -1179,6 +1312,80 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
                 </div>
               </div>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── FAQセクション ──── */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50/50 to-white" />
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="max-w-3xl mx-auto"
+          >
+            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-14">
+              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium mb-5 inline-block">
+                よくある質問
+              </Badge>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">
+                <span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
+                  FAQ
+                </span>
+              </h2>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="space-y-3">
+              {[
+                {
+                  q: '本当に費用ゼロですか？怪しくないですか？',
+                  a: 'はい、クリエイターの費用負担は一切ありません。商品開発・製造・広告・配送まで全てBRAND-BASEが負担します。当社のビジネスモデルは、クラウドファンディングの売上から利益を得る仕組みです。クリエイターが成功しないと当社も利益が出ないため、全力でサポートする構造になっています。',
+                },
+                {
+                  q: '本当にリスクなしですか？',
+                  a: '金銭的リスクはゼロです。プロジェクトが目標に達しなかった場合でも、あなたに費用請求は一切ありません。全ての投資リスクはBRAND-BASEが負います。',
+                },
+                {
+                  q: '商品のアイデアがないのですが参加できますか？',
+                  a: 'もちろんです。BRAND-BASEが市場調査に基づいた商品案を提案し、あなたに最適な商品を割り当てます。アイデアがある方もない方も、どちらでも歓迎しています。',
+                },
+                {
+                  q: '副業として取り組む場合、どのくらいの時間が必要ですか？',
+                  a: '企画から運営まで実務は当社が行うため、週に数時間程度の意思決定・確認作業がメインです。本業に支障のない範囲で進められます。',
+                },
+                {
+                  q: '海外向けの経験や英語力は必要ですか？',
+                  a: '不要です。英語でのコンテンツ作成、海外バッカーへの対応、カスタマーサポートは全て当社が代行します。',
+                },
+                {
+                  q: '利益の10%とは具体的にいくらですか？',
+                  a: '例えば、第1号プロジェクト「KNIGHT FANG」では売上930万円・粗利率約70%で、クリエイターの報酬は約65万円でした。商品や達成金額によって変動しますが、費用ゼロでブランドオーナーとしての実績と収入が得られます。',
+                },
+                {
+                  q: '審査はどのような基準ですか？',
+                  a: '「海外で売れる可能性」「高い利益率（粗利50〜60%以上）」「継続販売の可能性」の3点を評価します。アイデアの有無は問いません。応募フォームに記入いただいた内容をもとに、当社で商品化の可能性を検討します。',
+                },
+              ].map((item, i) => (
+                <FaqItem key={i} question={item.q} answer={item.a} />
+              ))}
+            </motion.div>
+
+            {/* CTA */}
+            <motion.div variants={fadeInUp} className="text-center mt-12">
+              <p className="text-gray-500 text-sm mb-5">まだ疑問がある方もお気軽にご応募ください。個別にご説明します。</p>
+              <Link href="/apply">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm px-12 py-6 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
+                >
+                  無料で応募する
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>

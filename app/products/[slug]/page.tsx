@@ -17,11 +17,10 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const products = await getAllProducts();
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
+  return [];
 }
+
+export const dynamicParams = true;
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const product = await getProductBySlug(params.slug);
