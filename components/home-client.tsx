@@ -707,112 +707,128 @@ export function HomeClient({ creators, products, rankings, ideas, siteSettings }
       </section>
 
       {/* ── 成功事例セクション ──── */}
-      <section className="py-16 md:py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/30 to-white" />
-        <div className="container mx-auto px-4 relative z-10">
+      <section className="py-16 md:py-24 bg-gray-50">
+        <div className="container mx-auto px-4">
           <motion.div
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="max-w-5xl mx-auto"
+            className="max-w-4xl mx-auto"
           >
-            <motion.div variants={fadeInUp} className="text-center mb-10 md:mb-14">
-              <Badge className="bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 text-purple-900 border-purple-200/50 px-5 py-1.5 text-sm font-medium mb-5 inline-block">
-                成功事例
-              </Badge>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-                <span className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-                  初プロジェクトで930万円達成
-                </span>
+            <motion.div variants={fadeInUp} className="mb-10 md:mb-12">
+              <p className="text-sm text-gray-500 tracking-widest uppercase mb-3">Case Study</p>
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-900 tracking-tight">
+                第1号プロジェクトの結果
               </h2>
-              <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
-                BRAND-BASE第1号プロジェクト「KNIGHT FANG」の実績をご紹介します
-              </p>
             </motion.div>
 
             <motion.div variants={fadeInUp}>
-              {/* メイン実績カード */}
-              <div className="bg-white rounded-3xl border border-purple-100/60 shadow-xl shadow-purple-100/20 overflow-hidden mb-8">
-                <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 p-6 md:p-8 text-white">
-                  <p className="text-sm font-medium opacity-90 mb-1">BRAND-BASE 第1号プロジェクト</p>
-                  <h3 className="text-2xl md:text-3xl font-bold">KNIGHT FANG Titanium Knife</h3>
-                  <p className="text-sm opacity-80 mt-1">Kickstarterにて資金調達に成功</p>
-                </div>
-                <div className="p-6 md:p-8">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-                    {[
-                      { label: '達成額', value: '930', suffix: '万円', color: 'from-purple-500 to-pink-500' },
-                      { label: '達成率', value: '3,109', suffix: '%', color: 'from-pink-500 to-rose-500' },
-                      { label: 'バッカー数', value: '613', suffix: '人', color: 'from-violet-500 to-purple-500' },
-                      { label: '目標比', value: '31', suffix: '倍', color: 'from-fuchsia-500 to-pink-500' },
-                    ].map((stat) => (
-                      <div key={stat.label} className="text-center">
-                        <div className={`text-3xl md:text-4xl font-bold bg-gradient-to-br ${stat.color} bg-clip-text text-transparent`}>
-                          {stat.value}<span className="text-lg md:text-xl">{stat.suffix}</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* クリエイター収入の具体例 */}
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-5 md:p-6 border border-purple-100/40">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold text-purple-900 mb-1">クリエイターの収入例</p>
-                        <p className="text-xs text-gray-600">このプロジェクトでクリエイターが得た報酬</p>
-                      </div>
-                      <div className="text-center md:text-right">
-                        <p className="text-xs text-gray-500 mb-0.5">費用負担ゼロで</p>
-                        <p className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                          ¥651,000
-                        </p>
-                        <p className="text-xs text-gray-500 mt-0.5">の副収入を獲得</p>
-                      </div>
+              {/* プロジェクト概要 */}
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-6">
+                <div className="p-6 md:p-8 border-b border-gray-100">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900">KNIGHT FANG</h3>
+                      <p className="text-sm text-gray-500 mt-1">チタン合金×ダマスカス鋼の折りたたみナイフ — Kickstarterで展開</p>
                     </div>
+                    <a
+                      href="https://www.kickstarter.com/projects/and-and/knight-fang"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-purple-600 hover:text-purple-800 underline underline-offset-4 shrink-0"
+                    >
+                      Kickstarterページを見る →
+                    </a>
                   </div>
+                </div>
+
+                {/* 数字 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
+                  {[
+                    { label: '調達額', value: '¥9,300,000' },
+                    { label: '達成率', value: '3,109%' },
+                    { label: '支援者数', value: '613人' },
+                    { label: '目標額', value: '¥300,000' },
+                  ].map((stat) => (
+                    <div key={stat.label} className="p-5 md:p-6 text-center">
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* 3つのポイント */}
-              <div className="grid md:grid-cols-3 gap-4">
-                {[
-                  {
-                    icon: '💰',
-                    title: '費用は全額当社が負担',
-                    desc: '商品開発・製造・広告・配送まで全ての費用をBRAND-BASEが負担。あなたの金銭的リスクはゼロです。',
-                  },
-                  {
-                    icon: '🤖',
-                    title: 'AIに奪われない副業',
-                    desc: 'AI時代に事務系・外注系の仕事は淘汰されます。自分のブランドとファンを持つことが、これからの時代の副業です。',
-                  },
-                  {
-                    icon: '🚀',
-                    title: '未経験でもブランドオーナーに',
-                    desc: '商品もスキルも不要。あなたはブランドの「顔」になるだけ。企画から運営まで全てプロがサポートします。',
-                  },
-                ].map((point) => (
-                  <div key={point.title} className="bg-white rounded-2xl p-5 border border-purple-100/40 shadow-md shadow-purple-100/10">
-                    <span className="text-2xl mb-3 block">{point.icon}</span>
-                    <h4 className="text-sm font-bold text-gray-900 mb-2">{point.title}</h4>
-                    <p className="text-xs text-gray-500 leading-relaxed">{point.desc}</p>
-                  </div>
-                ))}
+              {/* 収支とクリエイター報酬 */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-4">プロジェクト収支</h4>
+                  <dl className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500">売上</dt>
+                      <dd className="font-medium text-gray-900">¥9,300,000</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500">粗利率</dt>
+                      <dd className="font-medium text-gray-900">約70%</dd>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-100 pt-3">
+                      <dt className="text-gray-500">粗利</dt>
+                      <dd className="font-bold text-gray-900">¥6,510,000</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-4">クリエイターの報酬</h4>
+                  <dl className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500">報酬割合</dt>
+                      <dd className="font-medium text-gray-900">利益の10%</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500">初期費用・リスク</dt>
+                      <dd className="font-medium text-gray-900">¥0</dd>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-100 pt-3">
+                      <dt className="text-gray-500">受取額</dt>
+                      <dd className="font-bold text-gray-900">¥651,000</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+
+              {/* タイムライン */}
+              <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
+                <h4 className="text-sm font-semibold text-gray-900 mb-5">プロジェクトの流れ</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { step: '1', title: '応募・審査', detail: '応募フォームから申し込み' },
+                    { step: '2', title: '商品選定・開発', detail: '市場調査に基づき商品を決定' },
+                    { step: '3', title: 'KS掲載・販売', detail: 'ページ制作から広告まで当社が実施' },
+                    { step: '4', title: '報酬受取', detail: '利益確定後にクリエイターへ配分' },
+                  ].map((item) => (
+                    <div key={item.step} className="relative">
+                      <div className="text-xs font-bold text-purple-600 mb-1.5">STEP {item.step}</div>
+                      <p className="text-sm font-semibold text-gray-900 mb-1">{item.title}</p>
+                      <p className="text-xs text-gray-500 leading-relaxed">{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* CTA */}
-              <div className="text-center mt-10">
+              <div className="text-center">
                 <Link href="/apply">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white text-sm px-12 py-6 shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl font-semibold"
+                    className="bg-gray-900 hover:bg-gray-800 text-white text-sm px-10 py-6 rounded-xl font-semibold transition-colors"
                   >
-                    次のブランドオーナーになる
+                    クリエイターに応募する
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </Link>
+                <p className="text-xs text-gray-400 mt-3">費用は一切かかりません</p>
               </div>
             </motion.div>
           </motion.div>
