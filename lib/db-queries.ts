@@ -4,7 +4,7 @@ import { Creator, Product, Idea, IdeaProduct } from '@/types';
 export async function getAllCreators(): Promise<Creator[]> {
   const [creatorsRes, productsRes] = await Promise.all([
     supabase.from('creators').select('*').order('lifetime_sales_jpy', { ascending: false }),
-    supabase.from('products').select('creator_slug, lifetime_sales_jpy, lifetime_units'),
+    supabase.from('bb_products').select('creator_slug, lifetime_sales_jpy, lifetime_units'),
   ]);
   if (creatorsRes.error) {
     console.error('Error fetching creators:', creatorsRes.error);
@@ -41,7 +41,7 @@ export async function getAllCreators(): Promise<Creator[]> {
 export async function getCreatorBySlug(slug: string): Promise<Creator | null> {
   const [creatorRes, productsRes] = await Promise.all([
     supabase.from('creators').select('*').eq('slug', slug).maybeSingle(),
-    supabase.from('products').select('lifetime_sales_jpy, lifetime_units').eq('creator_slug', slug),
+    supabase.from('bb_products').select('lifetime_sales_jpy, lifetime_units').eq('creator_slug', slug),
   ]);
   if (creatorRes.error) {
     console.error('Error fetching creator:', creatorRes.error);
@@ -63,7 +63,7 @@ export async function getCreatorBySlug(slug: string): Promise<Creator | null> {
 
 export async function getAllProducts(): Promise<Product[]> {
   const { data, error } = await supabase
-    .from('products')
+    .from('bb_products')
     .select('*')
     .order('lifetime_sales_jpy', { ascending: false });
   if (error) {
@@ -75,7 +75,7 @@ export async function getAllProducts(): Promise<Product[]> {
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const { data, error } = await supabase
-    .from('products')
+    .from('bb_products')
     .select('*')
     .eq('slug', slug)
     .maybeSingle();
@@ -88,7 +88,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductsByCreator(creatorSlug: string): Promise<Product[]> {
   const { data, error } = await supabase
-    .from('products')
+    .from('bb_products')
     .select('*')
     .eq('creator_slug', creatorSlug)
     .order('lifetime_sales_jpy', { ascending: false });
@@ -212,7 +212,8 @@ export async function getIdeaBySlug(slug: string): Promise<Idea | null> {
 }
 
 // ─── idea_products テーブルから公開済みIDEAを取得（LP表示用） ────────────────
-const SUPABASE_STORAGE_URL = 'https://wojgjqikqlmlccfkfanj.supabase.co/storage/v1/object/public/product-images';
+// 統合DB (AsiaCFP Supabase) のストレージURL
+const SUPABASE_STORAGE_URL = 'https://seogpbjpabhmtmechtxr.supabase.co/storage/v1/object/public/product-images';
 
 function toPublicImageUrl(imageUrlOrPath: string | null): string | null {
   if (!imageUrlOrPath) return null;
