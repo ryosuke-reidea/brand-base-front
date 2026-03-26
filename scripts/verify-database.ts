@@ -33,7 +33,7 @@ async function verifyDatabase() {
 
   console.log('\nFetching products...');
   const { data: products, error: productsError } = await supabase
-    .from('products')
+    .from('bb_products')
     .select('*')
     .order('lifetime_sales_jpy', { ascending: false });
 

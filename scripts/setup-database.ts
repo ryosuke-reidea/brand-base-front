@@ -54,7 +54,7 @@ async function setupDatabase() {
 
   console.log('Inserting products data...');
   const { error: productsError } = await supabase
-    .from('products')
+    .from('bb_products')
     .insert(products);
 
   if (productsError) {
