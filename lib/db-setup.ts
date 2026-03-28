@@ -23,7 +23,7 @@ export async function seedDatabase() {
     }
 
     const { error: productsError } = await supabase
-      .from('bb_products')
+      .from('products')
       .insert(productsData);
 
     if (productsError) {
